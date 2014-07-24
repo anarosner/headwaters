@@ -6,13 +6,19 @@
 to.water.year(d, date.only = T)
 }
 \arguments{
-\item{Given}{a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.}
+\item{d}{\code{vector of dates}}
+
+\item{date.only}{\code{boolean} if TRUE (default), will only return vector of dates
+if FALSE, will return data.frame with column of dates, and numeric column of water years}
+}
+\value{
+see above
 }
 \description{
-Associate calendar dates a date object or numeric year, representing its water year.
+Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
 }
-\examples{
-to.water.year()
+\seealso{
+\code{\link{to.season}}, \code{\link{to.month}}
 }
 \keyword{dates,}
 \keyword{water}

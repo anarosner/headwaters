@@ -1,19 +1,20 @@
 ## ------------------------------------------------------------------------
 # functions to label each daily records with date representing season month year
-# library(lubridate)
 
 
+## ----to season-----------------------------------------------------------
 
-## ------------------------------------------------------------------------
-
-
-#' Associate calendar dates either a date or string representing its season.
-#' @param Given a date, determines which season it falls into, and assigns it either a string of the season name, 
+#' @title Associate calendar dates either a date or string representing its season.
+#' @description Given a date, determines which season it falls into, and assigns it either a string of the season name, 
 #  or a date object corresponding to the 28th day of the last month of the season.
+#' @param d \code{date} vector of dates
+#' @param return.type \code{character} one of "date", "season", or "all".  
+#' "date" will return a vector of date object (which includes year)
+#' "season" will return vector of strings of the season name (either "winter", "spring", "summer", or "fall") (does not include year)
+#' "all" will return a data.frame, with date, string of season name, and numeric of year
+#' @return see above
+#' @seealso \code{\link{to.water.year}}, \code{\link{to.month}}
 #' @keywords dates, season
-#' @export
-#' @examples
-#' to.season()
 
 to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
      x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
@@ -30,18 +31,21 @@ to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
           return(x[,"season.date"])  
      else if (return.type=="season")
           return(x[,"season"])  
-     else
+     else if (return.type=="all")
           return(as.data.frame(x[,c("season","season.date","year")]) )  
 }
 
 
 ## ------------------------------------------------------------------------
-#' Associate calendar dates a date object or numeric year, representing its water year.
-#' @param Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
+#' @title Associate calendar dates a date object or numeric year, representing its water year.
+#' @description Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
+#' @param d \code{vector of dates}  
+#' @param date.only \code{boolean} if TRUE (default), will only return vector of dates
+#' if FALSE, will return data.frame with column of dates, and numeric column of water years
+#' @return see above
+#' @seealso \code{\link{to.season}}, \code{\link{to.month}}
 #' @keywords dates, water year
-#' @export
-#' @examples
-#' to.water.year()
+
 to.water.year<-function(d,date.only=T) {
      x<-data.frame(date=d,year=year(d),month=month(d))
      x[x$month>=10,"year"]<-x[x$month>=10,"year"]+1
@@ -54,12 +58,12 @@ to.water.year<-function(d,date.only=T) {
 
 
 ## ------------------------------------------------------------------------
-#' Associates calendar dates with a date representing its month.
-#' @param Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.
-#' @keywords dates
-#' @export
-#' @examples
-#' to.month()
+#' @title Associates calendar dates with a date representing its month.
+#' @description Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.  Yeah, this one is probably not necessary, but it's easier to have a function analogous to season and water.year assignment functions
+#' @param d \code{vector of dates}
+#' @return \code{vector of dates}
+#' @seealso \code{\link{to.water.year}}, \code{\link{to.season}}
+
 to.month<-function(d) {
      return(month.date<-as.Date(paste0(year(d),"/",month(d),"/1")))
 }

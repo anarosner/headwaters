@@ -3,16 +3,17 @@
 \alias{summary.na}
 \title{Customization of summary function}
 \usage{
-\method{summary}{na}(v, hist = F)
+summary.na(v, hist = F)
 }
 \arguments{
-\item{Customization}{of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles.}
+\item{\code{numeric}{vector}}
+}
+\value{
+only prints summary
 }
 \description{
-Customization of summary function
-}
-\examples{
-summary.na()
+Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles.
 }
 \keyword{na}
+\keyword{summary,}
 

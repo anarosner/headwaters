@@ -6,13 +6,18 @@
 cv.error(obs, pred)
 }
 \arguments{
-\item{Calculates}{CV of error, given 2 vectors of observed and predicted values}
+\item{obs}{\code{numeric vector} observed values}
+
+\item{pred}{\code{numeric vector} predicted values (vector of same length as observed values)}
+}
+\value{
+\code{numeric}
 }
 \description{
-Calculate coefficient of variation of error
+Calculates CV of error, given 2 vectors of observed and predicted values
 }
-\examples{
-cv.error()
+\seealso{
+goodness
 }
 \keyword{cv,}
 \keyword{fit}

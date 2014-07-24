@@ -6,13 +6,15 @@
 to.month(d)
 }
 \arguments{
-\item{Given}{a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.}
+\item{d}{\code{vector of dates}}
+}
+\value{
+\code{vector of dates}
 }
 \description{
-Associates calendar dates with a date representing its month.
+Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.  Yeah, this one is probably not necessary, but it's easier to have a function analogous to season and water.year assignment functions
 }
-\examples{
-to.month()
+\seealso{
+\code{\link{to.water.year}}, \code{\link{to.season}}
 }
-\keyword{dates}
 

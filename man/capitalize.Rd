@@ -6,10 +6,13 @@
 capitalize(string)
 }
 \arguments{
-\item{Simple}{function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.}
+\item{string}{\code{character} string to capitalize}
+}
+\value{
+character
 }
 \description{
-Customization of capitalize function
+Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
 }
 \keyword{capitalize}
 \keyword{string,}

@@ -1,0 +1,101 @@
+
+## ----impoundments--------------------------------------------------------
+
+#' @title Get information on upstream barriers and impoundments
+#' @description Load and attach information for each gage on upstream barriers and impoundments.  Uses TNC barrier inventory and FWS survey openwater and wetlands. 
+#' (Open water and wetlands are intersected with NHDplus med res flowlines, to differentiate on- and off-network wetlands and waters)
+#' @param gages.spatial \code{SpatialPointsDataFrame} of gage info from plot.gages.nhdplus()
+#' @param basin.impound.file \code{character} location and name .Rdata file that contains UpstreamStatsImpounded, by NHDplus FEATUREID
+#' @return \code{SpatialPointsDataFrame} of gage info including TNC barriers and area of wetlands and open water
+#' @seealso plot.gages.nhdplus, load.gage.char, filter.gage.impound
+
+load.gage.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData")
+                                             #right now, using my local directory as the defaults.  this is bad, will replace later.
+#      #load Kyle's zonal stats
+#      load(basin.impound.file, verbose = T)
+#      basin.impound<-UpstreamStatsImpounded
+# 
+#      #info on column names and what they represent, from Kyle's zonal stats
+#      # based on intersection between FWS wetlands survey (CONUS) and med rez flowlines 
+#      # open=open water, 
+#      # all=wetlands and open water  (so subtract open from all to get just wetlands...)
+#           # "ImpoundmentsOpenSqKM"    "ImpoundmentsAllSqKM"      areas intersecting w/ stream network 
+#           # "OffChannelOpenSqKM"      "OffChannelAllSqKM"        areas not intersecting w/ stream network
+#           # "WetlandsOpenSqKM"        "WetlandsAllSqKM"          areas in drainage area, whether or not on network (should be same as CONUS, but in area instead of %?)
+#           # "PercentImpoundedOpen"    "PercentImpoundedAll"      percentage of wetlands or open water that is on the stream network (should be able to derive from above)
+#      
+#      #rename impounded area stats, 
+#      basin.impound$OnChannelWaterSqKM<-basin.impound$ImpoundmentsOpenSqKM
+#      basin.impound$OnChannelWetlandSqKM<-basin.impound$ImpoundmentsAllSqKM-basin.impound$ImpoundmentsOpenSqKM
+#      basin.impound$OffChannelWaterSqKM<-basin.impound$OffChannelOpenSqKM
+#      basin.impound$OffChannelWetlandSqKM<-basin.impound$OffChannelAllSqKM-basin.impound$OffChannelOpenSqKM
+#      basin.impound<-basin.impound[,-which(names(basin.impound) %in% c("ImpoundmentsOpenSqKM","ImpoundmentsAllSqKM","WetlandsOpenSqKM","WetlandsAllSqKM",
+#                                                                 "PercentImpoundedOpen","PercentImpoundedAll","OffChannelOpenSqKM","OffChannelAllSqKM"))]
+# 
+#      #classify large and small barriers
+#      
+#      # TNC codes, and their explanations
+#      # 1 = Complete barrier to all fish (12+ feet)
+#      # 2 = Small dam barrier (1-12 feet)
+#      # 3 = Partial breach
+#      # 4 = Barrier with fish ladder
+#      # 5 = Unlikely barrier - fully breached, weir, under 1ft dam (also COND=NO DAM or COND=REM or COND=DEL)
+#      # 6 = Unknown, assumed full barriers
+#      # 7 = Locks
+#      basin.impound$large_barriers<-basin.impound$deg_barr_1+basin.impound$deg_barr_4+
+#           basin.impound$deg_barr_6+basin.impound$deg_barr_7
+#      basin.impound$small_barriers<-basin.impound$deg_barr_2+basin.impound$deg_barr_3
+# 
+# 
+#      #merge with gages spatial info
+#      gages.impound.spatial<-merge(gages.spatial,basin.impound,by="FEATUREID",all.x=T,all.y=F,sort=F)
+# 
+#      return(gages.impound.spatial)
+
+
+
+
+## ----filter gages by impoundments----------------------------------------
+#' @title Filter out gages based on upstream barriers and impoundments
+#' @description Using barrier and impoundment info returned by load.gage.impound()
+#' @param gages.spatial \code{SpatialPointsDataFrame} of gage info including column names "TNC_DamCount" and "OnChannelWaterSqKM"
+#' @return \code{SpatialPointsDataFrame} of gage info that meet default barrier and impoundment criteria
+#' @seealso load.gage.impound
+
+#uses default requirements for unregulated streams
+#should change to allow customization of requirements, but that doesn't seem worth the time right now
+filter.gage.impound<-function(gages.spatial) {
+
+     gages.spatial.unimpound<-subset(gages.spatial,TNC_DamCount==0 & OnChannelWaterSqKM<.5)
+
+}
+
+
+
+## ----gage basin characteristics------------------------------------------
+
+#' @title Get basin characteristics associated with each gage
+#' @description Get basin characteristics associated with each gage, or more precisely, with the NHDplus stream reach each gage is plotted to.
+#' @param gages.spatial \code{SpatialPointsDataFrame} of gage info from plot.gages.nhdplus()
+#' @param basin.char.file \code{character} location andname of .Rdata file that contains UpstreamStats, by NHDplus FEATUREID
+#' @return \code{SpatialPointsDataFrame} of gage info including upstream basin characteristics
+#' @seealso plot.gages.nhdplus, load.gage.impound
+
+load.gage.char<-function(gages.spatial, basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
+                                             #right now, using my local directory as the defaults.  this is bad, will replace later.
+# 
+#      #load Kyle's zonal stats
+#      load(basin.char.file)
+#      basin.char<-UpstreamStats[,c("FEATUREID","Forest","Herbacious","Agriculture",
+#                                    "Developed","DevelopedNotOpen","Impervious",
+#                                    "AnnualTmaxC","AnnualTminC",
+#                                    "AnnualPrcpMM","SummerPrcpMM","WinterPrcpMM",
+#                                    "DrainageClass","HydrologicGroupAB","HydrologicGroupCD","SurficialCoarseC","PercentSandy",
+#                                    "ReachElevationM","BasinElevationM","ReachSlopePCNT","BasinSlopePCNT","TotDASqKM")]
+#                                    #right now, limiting the number of columns, for readability. can change this later, once we figure out how basin char will be accessed
+# 
+#      gages.char.spatial<-merge(gages.spatial,basin.char,by="FEATUREID",all.x=T,all.y=F,sort=F)
+# 
+#      return(gages.char.spatial)
+}
+

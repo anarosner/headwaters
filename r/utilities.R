@@ -1,10 +1,11 @@
 ## ------------------------------------------------------------------------
-#' Customization of summary function
-#' @param Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles. 
-#' @keywords na
-#' @examples 
-#' summary.na()
-summary.na<-function(v,hist=F) {
+
+#' @title Customization of summary function
+#' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles. 
+#' @param  \code{numeric vector}
+#' @return only prints summary
+#' @keywords summary, na
+summary.na<-function(v, hist=F) {
      print(data.frame(num.records=length(v)))
      print(data.frame(min=min(v,na.rm=T),mean=mean(v,na.rm=T),max=max(v,na.rm=T)))
      print(quantile(v,na.rm = T,probs = c(.1,.25,.5,.75,.9)))
@@ -20,11 +21,16 @@ summary.na<-function(v,hist=F) {
 
 
 ## ------------------------------------------------------------------------
-#' Customization of ls function
-#' @param Customization of ls function, that includes size (memory) of all objects or data in current session environment.
+#' @title Customization of ls function
+#' @description Customization of ls function, that includes size (memory) of all objects or data in current session environment.
+#' @param  \code{}
+#' @param  \code{}
+#' @param  \code{}
+#' @return only print to console
 #' @keywords ls
 #' @examples 
 #' ls.objects()
+
 ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
      napply <- function(names, fn) sapply(names, function(x)
           fn(get(x, pos = pos)))
@@ -54,8 +60,10 @@ ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
 
 
 ## ------------------------------------------------------------------------
-#' Customization of capitalize function
-#' @param Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
+#' @title Customization of capitalize function
+#' @description Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
+#' @param  string \code{character} string to capitalize
+#' @return character
 #' @keywords string, capitalize
 
 #borrowed from Hmisc package

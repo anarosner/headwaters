@@ -6,14 +6,20 @@
 goodness(df = NULL, obs = NULL, pred = NULL)
 }
 \arguments{
-\item{Calculates}{and prints a variety of goodness of fit, validation metrics, including rmse, NS eff, bias, percent bias, pearson's R, and cv of error}
+\item{obs}{\code{numeric vector} observed values}
+
+\item{pred}{\code{numeric vector} predicted values (vector of same length as observed values)}
+}
+\value{
+\code{data.frame}
 }
 \description{
-Some goodness of fit, validation metrics
+Calculates and prints a variety of goodness of fit, validation metrics, including rmse, NS eff, bias, percent bias, pearson's R, and cv of error
 }
-\examples{
-goodness()
+\seealso{
+bias, cv.error
 }
+\keyword{bias,}
 \keyword{fit}
 \keyword{goodness}
 \keyword{of}

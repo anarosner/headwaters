@@ -6,13 +6,18 @@
 bias(obs, pred)
 }
 \arguments{
-\item{Calculates}{model bias, given 2 vectors of observed and predicted values}
+\item{obs}{\code{numeric vector} observed values}
+
+\item{pred}{\code{numeric vector} predicted values (vector of same length as observed values)}
+}
+\value{
+\code{list}
 }
 \description{
-Calculate model bias
+Calculates model bias, given 2 vectors of observed and predicted values
 }
-\examples{
-bias()
+\seealso{
+goodness
 }
 \keyword{bias,}
 \keyword{fit}

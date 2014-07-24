@@ -3,6 +3,36 @@ Title: Headwater Streamflow Data Wrangling and Analysis
 Description: Tools for collecting streamflow data, meteorological data, and
     basin characteristics for hydrological modeling.
 Version: 0.1
+Depends:
+    dplyr,
+    reshape2,
+    ggplot2,
+    DataCombine,
+    dplyr,
+    EcoHydRology,
+    ggplot2,
+    lme4,
+    lubridate,
+    maptools,
+    MASS,
+    nlme,
+    plyr,
+    reshape2,
+    rgdal,
+    rgeos,
+    sp,
+    topmodel,USGSwsStats,
+    waterData,
+    xtable,
+    zoo
+Suggests:
+    car,
+    data.table,
+    foreign,
+    RColorBrewer,
+    RJSONIO,
+    RJSONLD,
+    VIF
 Author: Ana Rosner <arosner@usgs.gov>, <ana@alumni.tufts.edu>
 Maintainer: Ana Rosner <arosner@usgs.gov>, <ana@alumni.tufts.edu>
 License: Public Domain

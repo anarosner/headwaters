@@ -6,13 +6,21 @@
 to.season(d, return.type = "date")
 }
 \arguments{
-\item{Given}{a date, determines which season it falls into, and assigns it either a string of the season name,}
+\item{d}{\code{date} vector of dates}
+
+\item{return.type}{\code{character} one of "date", "season", or "all".
+"date" will return a vector of date object (which includes year)
+"season" will return vector of strings of the season name (either "winter", "spring", "summer", or "fall") (does not include year)
+"all" will return a data.frame, with date, string of season name, and numeric of year}
+}
+\value{
+see above
 }
 \description{
-Associate calendar dates either a date or string representing its season.
+Given a date, determines which season it falls into, and assigns it either a string of the season name,
 }
-\examples{
-to.season()
+\seealso{
+\code{\link{to.water.year}}, \code{\link{to.month}}
 }
 \keyword{dates,}
 \keyword{season}
