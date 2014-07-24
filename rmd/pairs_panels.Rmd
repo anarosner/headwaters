@@ -1,11 +1,11 @@
 ```{r}
-
-#' Customization of pairs function
-#' @param Customization of pairs function. Diagonal displays histograms. Lower panel displays pearson's r, with values above 0.5 or other specified value flagged by coloring red. 
+#' @title Customization of pairs function
+#' @description Customization of pairs function. Diagonal displays histograms. Lower panel displays pearson's r, with values above 0.5 or other specified value flagged by coloring red. 
+#' @param df \code{data.frame} data.frame for comparison. all columns will be used, so pass a subset data.frame if you want to limit which colums.
+#' @param main \code{character} title for plot
+#' @param flag \code{numeric} value between 0 and 1.  above this value, pearson's r will be colored red to flag
+#' @return only prints plot
 #' @keywords pairs, correlation
-#' @export
-#' @examples
-#' pairs.custom()
 
 pairs.custom<-function(df, main=NULL, flag=0.5) {
 

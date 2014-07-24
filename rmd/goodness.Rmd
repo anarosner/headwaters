@@ -1,18 +1,12 @@
-```{r}
-#  goodness of fit/validation functions
-# library(topmodel)
-# library(USGSwsStats)
-```
-
-
 ```{r goodness of fit/validation functions}
-
-#' Calculate coefficient of variation of error
-#' @param Calculates CV of error, given 2 vectors of observed and predicted values
+#' @title Calculate coefficient of variation of error
+#' @description Calculates CV of error, given 2 vectors of observed and predicted values
+#' @param obs \code{numeric vector} observed values
+#' @param pred \code{numeric vector} predicted values (vector of same length as observed values)
+#' @return \code{numeric}
 #' @keywords cv, goodness of fit
-#' @export
-#' @examples
-#' cv.error()
+#' @seealso goodness
+
 cv.error<-function(obs,pred) {
      sd(pred-obs)/mean(obs)
 }
@@ -22,12 +16,13 @@ cv.error<-function(obs,pred) {
 
 
 ```{r}
-#' Calculate model bias
-#' @param Calculates model bias, given 2 vectors of observed and predicted values
+#' @title Calculate model bias
+#' @description Calculates model bias, given 2 vectors of observed and predicted values
+#' @param obs \code{numeric vector} observed values
+#' @param pred \code{numeric vector} predicted values (vector of same length as observed values)
+#' @return \code{list}
 #' @keywords bias, goodness of fit
-#' @export
-#' @examples
-#' bias()
+#' @seealso goodness
 bias<-function(obs,pred) {
      b<-mean(pred)-mean(obs)
      return(list(bias=b,percent.bias=b/mean(obs)*100))
@@ -37,12 +32,14 @@ bias<-function(obs,pred) {
 
 
 ```{r}
-#' Some goodness of fit, validation metrics 
-#' @param Calculates and prints a variety of goodness of fit, validation metrics, including rmse, NS eff, bias, percent bias, pearson's R, and cv of error
-#' @keywords goodness of fit
-#' @export
-#' @examples
-#' goodness()
+#' @title Some goodness of fit, validation metrics 
+#' @description Calculates and prints a variety of goodness of fit, validation metrics, including rmse, NS eff, bias, percent bias, pearson's R, and cv of error
+#' @param obs \code{numeric vector} observed values
+#' @param pred \code{numeric vector} predicted values (vector of same length as observed values)
+#' @return \code{data.frame}
+#' @keywords bias, goodness of fit
+#' @seealso bias, cv.error
+
 goodness<-function(df=NULL,obs=NULL,pred=NULL) {
      if(is.null(obs) | is.null(pred)){
           if(is.null(df)){
