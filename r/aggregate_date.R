@@ -1,0 +1,67 @@
+## ------------------------------------------------------------------------
+# functions to label each daily records with date representing season month year
+# library(lubridate)
+
+
+
+## ------------------------------------------------------------------------
+
+
+#' Associate calendar dates either a date or string representing its season.
+#' @param Given a date, determines which season it falls into, and assigns it either a string of the season name, 
+#  or a date object corresponding to the 28th day of the last month of the season.
+#' @keywords dates, season
+#' @export
+#' @examples
+#' to.season()
+
+to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
+     x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
+     
+     x[x$month>=12,"year"]<-x[x$month>=12,"year"]+1
+     x[,c("season.date","season")]<-matrix(unlist(
+          lapply(x$month, function(y) {
+               if(y %in% 9:11) c("11/28","fall")
+               else if (y %in% c(12,1:2)) c("2/28","winter")
+               else if (y %in% 3:5) c("5/28","spring") 
+               else if (y %in% 6:8) c("8/28","summer")})),ncol=2,byrow=T)
+     x$season.date<-as.Date(paste0(x$year,"/",x$season.date))
+     if (return.type=="date")
+          return(x[,"season.date"])  
+     else if (return.type=="season")
+          return(x[,"season"])  
+     else
+          return(as.data.frame(x[,c("season","season.date","year")]) )  
+}
+
+
+## ------------------------------------------------------------------------
+#' Associate calendar dates a date object or numeric year, representing its water year.
+#' @param Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
+#' @keywords dates, water year
+#' @export
+#' @examples
+#' to.water.year()
+to.water.year<-function(d,date.only=T) {
+     x<-data.frame(date=d,year=year(d),month=month(d))
+     x[x$month>=10,"year"]<-x[x$month>=10,"year"]+1
+     x$water.date<-as.Date(paste0(x$year,"/9/30"))
+     if (!date.only)
+          return(as.data.frame(x[,c("year","water.date")]))
+     else
+          return(x[,"water.date"])
+}
+
+
+## ------------------------------------------------------------------------
+#' Associates calendar dates with a date representing its month.
+#' @param Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.
+#' @keywords dates
+#' @export
+#' @examples
+#' to.month()
+to.month<-function(d) {
+     return(month.date<-as.Date(paste0(year(d),"/",month(d),"/1")))
+}
+
+

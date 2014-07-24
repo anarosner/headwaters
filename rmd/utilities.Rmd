@@ -1,0 +1,72 @@
+```{r}
+#' Customization of summary function
+#' @param Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles. 
+#' @keywords
+#' @examples 
+#' summary.na()
+summary.na<-function(v, hist=F) {
+     print(data.frame(num.records=length(v)))
+     print(data.frame(min=min(v,na.rm=T),mean=mean(v,na.rm=T),max=max(v,na.rm=T)))
+     print(quantile(v,na.rm = T,probs = c(.1,.25,.5,.75,.9)))
+     print(d<-data.frame(num.records.na=sum(is.na(v)),  num.records.infinite=sum(is.infinite(v)),  num.records.not.numeric=sum(!is.numeric(v))))
+     if (hist) {
+          o<-par()
+          layout(matrix(c(1,1,2),ncol = 3,nrow = 1, byrow = TRUE),widths=c(2,1))
+          hist(v)
+          barplot(as.matrix(d),horiz = F)
+          par<-o
+     }
+}
+```
+
+
+
+```{r}
+#' Customization of ls function
+#' @param Customization of ls function, that includes size (memory) of all objects or data in current session environment.
+#' @keywords ls
+#' @examples 
+#' ls.objects()
+ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
+     napply <- function(names, fn) sapply(names, function(x)
+          fn(get(x, pos = pos)))
+     names <- ls(pos = pos, pattern = pattern)
+     obj.class <- napply(names, function(x) as.character(class(x))[1])
+     obj.mode <- napply(names, mode)
+     obj.type <- ifelse(is.na(obj.class), obj.mode, obj.class)
+     obj.size <- napply(names, object.size)
+     obj.prettysize <- sapply(obj.size, function(r) prettyNum(r, big.mark = ",") )
+     obj.dim <- t(napply(names, function(x)
+          as.numeric(dim(x))[1:2]))
+     vec <- is.na(obj.dim)[, 1] & (obj.type != "function")
+     obj.dim[vec, 1] <- napply(names, length)[vec]
+     out <- data.frame(names,obj.type, obj.size,obj.prettysize, obj.dim)
+     names(out) <- c("Name","Type", "Size", "PrettySize", "Rows", "Columns")
+     if (!alpha)
+          out <- out[order(out[["Size"]], decreasing=T), ]
+     else
+          out <- out[order(out[["Name"]], decreasing=F), ]
+     out <- out[c("Name","Type", "PrettySize", "Rows", "Columns")]
+     names(out) <- c("Name","Type", "Size", "Rows", "Columns")
+     row.names(out)<-NULL
+     if (head)
+          out <- head(out, n)
+     out
+}
+```
+
+```{r}
+#' Customization of capitalize function
+#' @param Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
+#' @keywords string, capitalize
+
+#borrowed from Hmisc package
+capitalize<-function (string) 
+{
+     capped <- grep("^[^A-Z]*$", string, perl = TRUE)
+     substr(string[capped], 1, 1) <- toupper(substr(string[capped], 
+                                                    1, 1))
+     return(string)
+}
+```
+
