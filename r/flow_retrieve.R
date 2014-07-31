@@ -1,5 +1,5 @@
 
-```{r aggregate function to use w/ ddply to aggregate}
+## ----aggregate function to use w/ ddply to aggregate---------------------
 
 agg.function.flow<-function(df,cutoff) {
      j<-names(df)[1]
@@ -13,10 +13,9 @@ agg.function.flow<-function(df,cutoff) {
            records.period=sum(!is.na(df$val)) ))
 }
 
-```
 
 
-```{r import and aggregate into flow metrics}
+## ----import and aggregate into flow metrics------------------------------
 #' @title import flow 
 #' @description import flow from nwis web service, and aggregate to various metrics and by various periods
 import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
@@ -171,6 +170,5 @@ import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
      
      
 }
-```
 
 

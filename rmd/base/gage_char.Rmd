@@ -107,6 +107,8 @@ internal.count.dams<-function(FEATUREID,plusflow=NULL,dams=NULL) {
      return( data.frame(FEATUREID=FEATUREID, large=large, small=small) )
 }
 
+#' @title iteratively trace nhdplus network upstream and cound # and size of dams
+#' @description for gages that don't have dam counts and impounded area in basin characteristics only
 gage.trace.dams<-function(gages.spatial, 
                          dam.file="C:/ALR/Data/ConnectivityData/TNC_100k/dams_on_med_rez.dbf", 
                          plusflow.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusAttributes/0205/PlusFLow.dbf") {
@@ -140,6 +142,9 @@ gage.trace.dams<-function(gages.spatial,
 
 
 ```{r}
+#' @title filter by dams traced through gage.trace.dams
+#' @description filter by dams traced through gage.trace.dams
+
 gage.filter.dams<-function(gages.spatial) {
      gages.spatial<-subset(g.spatial,!is.na(FEATUREID))
      gages.spatial<-subset(gages.spatial,large==0 & small==0)

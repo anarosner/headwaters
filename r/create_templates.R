@@ -1,10 +1,10 @@
-```{r}
+## ------------------------------------------------------------------------
 
 # q.matrices<-create.q.matrices(gages.spatial =  periods=c("daily",  "monthly",   "seasonal",    "annual")
 
-```
 
-```{r}
+
+## ------------------------------------------------------------------------
 #' @title Create template of dates 
 #' @description Create template of dates to mark each period for both flow and weather data
 create.template.date<-function () {
@@ -27,10 +27,9 @@ create.template.date<-function () {
      return(template.date)
 }
 
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 #' @title Create template of dates in mauer weather data
 #' @description mauer dates
 create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily/east") {
@@ -54,10 +53,9 @@ create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily
 #      save(template.weather,file = file.path(pgd.dir,"data","met_template.Rdata"))
 }
 
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 #' @title define periods
 #' @description if we want to add different period (i.e. bkt bioperiod), can do it here
 create.template.periods<-function() {
@@ -67,16 +65,15 @@ create.template.periods<-function() {
 }
 
 #' @title names of seasons
-#' @description yep, that's all
-create.template.season<-function {
+#' @description yep, that's all for now
+create.template.season<-function() {
      template.season<-c("winter","spring","summer","fall")
      return(template.season)
 }
 
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 #' @title col names for flow stats
 #' @description col names for flow stats
 #stats to save from flow
@@ -101,10 +98,9 @@ create.cols.weather<-function() {
      return(cols.weather)
 }
 
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 #' @title create the monster list of 3-d matrices for flow
 #' @description used to store aggregated flow data
 create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "seasonal",    "annual"), 
@@ -134,10 +130,9 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
      return(q.matrices)
 }
 
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 #' @title Create monster list of 3d weather matrices
 #' @description used to store aggregated weather metrics
 create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
@@ -166,5 +161,5 @@ create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seas
 
 
 
-```
+
 

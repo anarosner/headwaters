@@ -21,7 +21,8 @@ Depends:
     rgdal,
     rgeos,
     sp,
-    topmodel,USGSwsStats,
+    topmodel,
+    USGSwsStats,
     waterData,
     xtable,
     zoo

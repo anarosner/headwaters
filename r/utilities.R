@@ -5,6 +5,7 @@
 #' @param  \code{numeric vector}
 #' @return only prints summary
 #' @keywords summary, na
+
 summary.na<-function(v, hist=F) {
      print(data.frame(num.records=length(v)))
      print(data.frame(min=min(v,na.rm=T),mean=mean(v,na.rm=T),max=max(v,na.rm=T)))
