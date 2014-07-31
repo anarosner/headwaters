@@ -67,8 +67,8 @@ create.template.periods<-function() {
 }
 
 #' @title names of seasons
-#' @description yep, that's all
-create.template.season<-function {
+#' @description yep, that's all for now
+create.template.season<-function() {
      template.season<-c("winter","spring","summer","fall")
      return(template.season)
 }

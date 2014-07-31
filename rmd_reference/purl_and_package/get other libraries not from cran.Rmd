@@ -1,0 +1,9 @@
+```{r command for loading usgs packages}
+
+# using devtools's install_github() didn't work.  use this command instead
+
+install.packages(c("USGSwsStats"), 
+                 repos=c("http://usgs-r.github.com","http://cran.us.r-project.org"),
+                 dependencies=TRUE,
+                 type="both")
+```

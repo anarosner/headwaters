@@ -3,11 +3,11 @@ library(knitr)
 
 
 base.dir<-"C:/ALR/Models/headwaters"
+setwd(base.dir)
+list.files()
 
 
 ###danger danger
-setwd(base.dir)
-list.files()
 # file.remove("NAMESPACE")
 # list.files()
 setwd(file.path(base.dir,"r"))
@@ -40,7 +40,7 @@ while (length(dirs)>0) {
      dirs<-dirs[-1]
 
 }
-
+list.files(path = file.path(base.dir,"r"))
 ```
 
 ```{r document}
@@ -48,16 +48,24 @@ library(devtools)
 library(roxygen2)
 
 setwd(base.dir)
-document()
+document(clean = T, reload = T)
 ```
 
 ```{r install and load package}
 library(devtools)
+# base.dir<-"C:/ALR/Models/headwaters"
 
 setwd(base.dir)
-setwd("..")
-install("headwaters")
-library(headwaters)
+install()
+
+# setwd("..")
+# install("headwaters")
+```
+
+```{r}
+# library(headwaters)
+setwd(base.dir)
+load_all()
 ```
 
 
@@ -93,12 +101,3 @@ library(headwaters)
 
 
 
-```{r command for loading usgs packages}
-
-# using devtools's install_github() didn't work.  use this command instead
-
-install.packages(c("USGSwsStats"), 
-                 repos=c("http://usgs-r.github.com","http://cran.us.r-project.org"),
-                 dependencies=TRUE,
-                 type="both")
-```
