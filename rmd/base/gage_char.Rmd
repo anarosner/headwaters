@@ -11,7 +11,7 @@
 #' @return \code{SpatialPointsDataFrame} of gage info including TNC barriers and area of wetlands and open water
 #' @seealso plot.gages.nhdplus, load.gage.char, filter.gage.impound
 
-load.gage.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData") {
+gage.load.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData") {
                                              #right now, using my local directory as the defaults.  
                                              #this is bad, will replace later, blah blah blah.
 
@@ -61,9 +61,6 @@ load.gage.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_fro
 
 ```
 
-
-
-
 ```{r filter gages by impoundments}
 #' @title Filter out gages based on upstream barriers and impoundments
 #' @description Using barrier and impoundment info returned by load.gage.impound()
@@ -72,8 +69,8 @@ load.gage.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_fro
 #' @seealso load.gage.impound
 
 #uses default requirements for unregulated streams
-#should change to allow customization of requirements, but that doesn't seem worth the time right now
-filter.gage.impound<-function(gages.spatial) {
+#placeholder to eventually allow customization of requirements, but that doesn't seem worth the time right now
+gage.filter.impound<-function(gages.spatial) {
 
      gages.spatial.unimpound<-subset(gages.spatial,TNC_DamCount==0 & OnChannelWaterSqKM<.5)
 
@@ -81,7 +78,73 @@ filter.gage.impound<-function(gages.spatial) {
 
 ```
 
+```{r trace tnc dams ONLY for basins that dont have }
 
+internal.count.dams<-function(FEATUREID,plusflow=NULL,dams=NULL) {
+     small<-large<-0
+     if (is.null(plusflow))
+          plusflow<-read.dbf("C:/ALR/Data/StreamData/NHDplus/NHDPlusAttributes/0205/PlusFLow.dbf")
+     if (is.null(dams))
+          dams<-read.dbf("C:/ALR/Data/ConnectivityData/TNC_100k/dams_on_med_rez.dbf")
+     max.length<-0
+     
+     #iteratively select all features upstream of user chosen feature
+     queue<-c(FEATUREID) #queue of flowline segments that need to be traced upstream      
+     while (length(queue)>0) {
+          large<-large+sum(dams[dams$COMID==queue[1], "large"])
+          small<-small+sum(dams[dams$COMID==queue[1], "small"])
+          
+          queue<-c(queue[-1],plusflow[plusflow$TOCOMID==queue[1],"FROMCOMID"]) 
+               #remove 1st segment from the queue, 
+               #and add all segments that flow into it to the queue
+          
+          #clean up to eliminate uneccesary looping due to duplicates or terminal headwater features
+          queue<-queue[!(queue==0)]  #in the NHDplus tables, features with FROMCOMID==0 have no inflowing tribs
+          queue<-unique(queue)     #eliminate duplicates
+          max.length<-max(max.length,length(queue))          
+     }#end while loop
+     print(max.length)
+     return( data.frame(FEATUREID=FEATUREID, large=large, small=small) )
+}
+
+gage.trace.dams<-function(gages.spatial, 
+                         dam.file="C:/ALR/Data/ConnectivityData/TNC_100k/dams_on_med_rez.dbf", 
+                         plusflow.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusAttributes/0205/PlusFLow.dbf") {
+          
+     plusflow<-read.dbf(plusflow.file)
+     
+     deg.barr.large<- c(1,4,6,7)
+     deg.barr.small<-c(2,3)
+     
+     dams<-read.dbf(dam.file)
+     dams<-dams[,c("UNIQUE_ID","COMID","deg_barr","NotOnHydro")]
+     dams$large<-as.numeric(dams$deg_barr %in% deg.barr.large)
+     dams$small<-as.numeric(dams$deg_barr %in% deg.barr.small)
+     
+     
+     f<-unique(g.spatial$FEATUREID)
+     f<-f[!is.na(f)]
+     
+     f.d<-c()
+     for (i in 1:length(f)) {
+          print( paste("========",i,"of", length(f), "::",f[i],"=========" ))
+          f.d<-rbind( f.d,internal.count.dams( FEATUREID=f[i], plusflow=plusflow, dams=dams ) )
+     
+     }
+     
+     gages.spatial<-merge(gages.spatial,f.d,all.x=T,all.y=F,by = "FEATUREID",sort = F)
+
+
+}
+```
+
+
+```{r}
+gage.filter.dams<-function(gages.spatial) {
+     gages.spatial<-subset(g.spatial,!is.na(FEATUREID))
+     gages.spatial<-subset(gages.spatial,large==0 & small==0)
+}
+```
 
 
 ```{r gage basin characteristics}
@@ -93,7 +156,7 @@ filter.gage.impound<-function(gages.spatial) {
 #' @return \code{SpatialPointsDataFrame} of gage info including upstream basin characteristics
 #' @seealso plot.gages.nhdplus, load.gage.impound
 
-load.gage.char<-function(gages.spatial, basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
+gage.load.char<-function(gages.spatial, basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
                                              #right now, using my local directory as the defaults.  this is bad, will replace later.
 
      #load Kyle's zonal stats
