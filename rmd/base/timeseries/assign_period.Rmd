@@ -15,6 +15,7 @@
 #' @return see above
 #' @seealso \code{\link{to.water.year}}, \code{\link{to.month}}
 #' @keywords dates, season
+#' @export
 
 to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
      x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
@@ -45,6 +46,7 @@ to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
 #' @return see above
 #' @seealso \code{\link{to.season}}, \code{\link{to.month}}
 #' @keywords dates, water year
+#' @export
 
 to.water.year<-function(d,date.only=T) {
      x<-data.frame(date=d,year=year(d),month=month(d))
@@ -63,6 +65,7 @@ to.water.year<-function(d,date.only=T) {
 #' @param d \code{vector of dates}
 #' @return \code{vector of dates}
 #' @seealso \code{\link{to.water.year}}, \code{\link{to.season}}
+#' @export
 
 to.month<-function(d) {
      return(month.date<-as.Date(paste0(year(d),"/",month(d),"/1")))

@@ -3,8 +3,7 @@
 \alias{gage.load.char}
 \title{Get basin characteristics associated with each gage}
 \usage{
-gage.load.char(gages.spatial,
-  basin.char.file = "C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData")
+gage.load.char(gages.spatial, basin.char.file = NULL, use.default.cols = F)
 }
 \arguments{
 \item{gages.spatial}{\code{SpatialPointsDataFrame} of gage info from plot.gages.nhdplus()}

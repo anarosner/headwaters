@@ -6,6 +6,7 @@
 #' @return \code{numeric}
 #' @keywords cv, goodness of fit
 #' @seealso goodness
+#' @export
 
 cv.error<-function(obs,pred) {
      sd(pred-obs)/mean(obs)
@@ -20,6 +21,7 @@ cv.error<-function(obs,pred) {
 #' @return \code{list}
 #' @keywords bias, goodness of fit
 #' @seealso goodness
+#' @export
 bias<-function(obs,pred) {
      b<-mean(pred)-mean(obs)
      return(list(bias=b,percent.bias=b/mean(obs)*100))
@@ -34,6 +36,7 @@ bias<-function(obs,pred) {
 #' @return \code{data.frame}
 #' @keywords bias, goodness of fit
 #' @seealso bias, cv.error
+#' @export
 
 goodness<-function(df=NULL,obs=NULL,pred=NULL) {
      if(is.null(obs) | is.null(pred)){

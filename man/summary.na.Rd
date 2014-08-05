@@ -6,7 +6,9 @@
 summary.na(v, hist = F)
 }
 \arguments{
-\item{\code{numeric}{vector}}
+\item{v}{\code{numeric vector} values to summarize}
+
+\item{hist}{\code{boolean} if TRUE, will plot a histogram, as well as output text to console}
 }
 \value{
 only prints summary
@@ -14,6 +16,5 @@ only prints summary
 \description{
 Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles.
 }
-\keyword{na}
-\keyword{summary,}
+\keyword{summary}
 

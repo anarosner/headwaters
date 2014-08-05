@@ -1,6 +1,7 @@
 ## ------------------------------------------------------------------------
 #' @title plot gages to a weather grid cell
 #' @description plot to a weather grid polygon, based on all the files in the mauer daily east data set
+#' @export
 gage.plot.weather<-function(gages.spatial, weather.grid.poly=NULL, weather.grid.dir="C:/ALR/Data/ClimateData/Mauer/met_poly_GCS", 
                                            weather.dir="C:/ALR/Data/ClimateData/Mauer/daily/east", 
                             proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", plot=F) {

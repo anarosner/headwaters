@@ -3,8 +3,7 @@
 \alias{gage.load.impound}
 \title{Get information on upstream barriers and impoundments}
 \usage{
-gage.load.impound(gages.spatial,
-  basin.impound.file = "C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData")
+gage.load.impound(gages.spatial, basin.impound.file = NULL)
 }
 \arguments{
 \item{gages.spatial}{\code{SpatialPointsDataFrame} of gage info from plot.gages.nhdplus()}

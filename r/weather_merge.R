@@ -1,4 +1,4 @@
-```{r}
+## ------------------------------------------------------------------------
 # dseasonal1<-array(dim=c(dim(qseasonal)[1], #dates
 #                         nrow(gages.met.spatial), #gages
 #                         dim(cseasonal)[3]+dim(qseasonal)[3])) #climate and flow stats
@@ -28,5 +28,5 @@
 # dseasonal$season<-to.season(d=dseasonal$date,"season")
 # dseasonal$year<-year(as.Date(as.character(dseasonal$date)))
 # dseasonal$precip.e<-dseasonal$rain+dseasonal$melt
-```
+
 

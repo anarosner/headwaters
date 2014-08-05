@@ -3,14 +3,15 @@
 
 agg.function.flow<-function(df,cutoff) {
      j<-names(df)[1]
-     cutoff<-template.period[j,"min.records"]
+     cutoff<-create.template.periods()[j,"min.records"]
      return(c(mean=mean(df$val,na.rm=T),
            max=max(df$val,na.rm=T),
            min=min(df$val,na.rm=T),
            low=min(df$rolling7,na.rm=T),
 #                                     complete=sum(!is.na(df$val))>=get(x = "cutoff",envir = parent.env()),
            complete=sum(!is.na(df$val))>=cutoff,
-           records.period=sum(!is.na(df$val)) ))
+           records.period=sum(!is.na(df$val)), 
+           records.period.rolling=sum(!is.na(df$rolling7)) ))
 }
 
 
@@ -18,14 +19,17 @@ agg.function.flow<-function(df,cutoff) {
 ## ----import and aggregate into flow metrics------------------------------
 #' @title import flow 
 #' @description import flow from nwis web service, and aggregate to various metrics and by various periods
-import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
-                      save.log=T, log.dir="C:/ALR/Models_processed_data/flow_timeseries", 
-                      template.date=NULL) {
+#' @export
+flow.retrieve<-function(gages.spatial, 
+                        periods=c("seasonal","annual"),
+                        agg.function = agg.function.flow,
+                        log.dir=NULL) {
      
      gages<-gages.spatial@data
+     gages.temp<-gages[,c("site_no","station_nm")]
 #      if (is.null(template.date))
-          template.date<-create.template.date()
-     template.period<-create.template.period()
+     template.date<-create.template.date()
+     template.period<-create.template.periods()
      cols.flow<-create.cols.flow()
      
      q.matrices<-create.q.matrices(gages.spatial=gages.spatial, periods=periods, template.date=template.date)
@@ -64,9 +68,13 @@ import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
                     #convert to zoo timeseries, all columns
                x.zoo<-zoo(x.all$val,x.all$dates) 
                     #rollapply, feed it only values, b/c rollapply works better that way
-               rolling7<-rollapply(data = x.zoo,width = 7,
-                                   FUN = function(x) mean(x), align="center", 
-                                   partial = F) 
+               suppressWarnings( 
+                    rolling7<-rollapply(data = x.zoo,
+                                        FUN = function(x) mean(x), 
+                                        width = 7,
+                                        align="center", 
+                                        partial = F) 
+               )
                     #recreate zoo timeseries, using zoo with all columns, plus rolling mean calucated above
                x.roll<-as.data.frame(merge(x.zoo, rolling7))
                     #                x.zoo<-merge(x.zoo, rolling7) #CHANGED
@@ -85,20 +93,23 @@ import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
 #                print("start periods loop")
                for (j in periods){     
 #                     j<-periods[i]
-                    print(paste("======",j))
+#                     print(paste("======",j))
                     #determine number of records for this periods to be considered "complete"
 #                     cutoff<-template.period[j,"min.records"]  
 #                     assign("cutoff",value = template.period[j,"min.records"], envir = )
                     
                     #aggregate, i.e. mean, max, low, etc
-                    x.agg<-ddply(x.roll[,c(j,"val","rolling7")], j, agg.function.flow)
+                    suppressWarnings(
+                         x.agg<-ddply(x.roll[,c(j,"val","rolling7")], j, agg.function.flow)
+                    )
                     
                     #set records that don't have min # records required for period to NA
-                    x.agg[x.agg$complete==0,!(names(x.agg) %in% c(j,"complete", "records.period"))]<-NA
+                    x.agg[x.agg$complete==0,!(names(x.agg) %in% c(j,"complete", "records.period", "records.period.rolling"))]<-NA
 #                     x.agg[x.agg$complete==0,c("mean", "max", "low")]<-NA
 
                     #save a count of # complete records in gages data frame
-                    gages[k,paste0("records.",j)]<-sum(x.agg$complete)
+#                     gages[k,paste0("records.",j)]<-sum(x.agg$complete)
+                    gages.temp[k,paste0("records.",j)]<-sum(x.agg$complete)
                     
                     x.merge<-merge(template.date[[j]],x.agg,
                                    by.x="date",by.y=j,all.x=T,all.y=F)
@@ -125,47 +136,50 @@ import.flow<-function(gages.spatial, periods=c("seasonal","annual"),
 #                     q.matrices[[j]][,gages$site_no[i],"records"]<-x.merge$records
 
 #                     cutoff<-Inf
-                    print(paste("====== finish",j))
+#                     print(paste("====== finish",j))
                }#end loop periods
           }#end check flag
      
-     print(paste0("     end gage",k,gages$site_no[k]))
+     print(paste0("     end gage ",k))
      }#end loop gages
      
-#      if(save.log) {
-#           
-#           setwd(log.dir)
-#           
-#           log<-c("flow data retrieval log", format.Date(now()),"\r")
-#           {
-#           if (length(missing)>0) {
-#                log<-c(log,             
-#                     paste(length(gages$site_no[-missing]),"sites"),
-#                     paste(length(missing),"gages missing data, ignored"),
-#                     "\r","\r",
-#                     "gages missing all data",
-#                     gages$site_no[missing],
-#                     "\r","\r",
-#                     "gages used",
-#                     gages$site_no[-missing])
-#                write.table(gages$site_no[missing],sep="/r",file="gages_missing_all_data.txt")
-#                write.table(gages$site_no[-missing],sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
-#                }
-#           
-#           else {
-#                log<-c(log,             
-#                     paste(length(gages$site_no),"sites"),
-#                     "\r","\r",
-#                     "sites",
-#                     gages$site_no)
-#                write.table(gages$site_no,sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
-#                }
-#           
-#           }
-#           writeLines(log,"flow_retrieval_log.txt")
-#           
-#      }
+     if(!is.null(log.dir)) {
+          
+          setwd(log.dir)
+          
+          log<-c("flow data retrieval log", format.Date(now()),"\r")
+          {
+          if (length(missing)>0) {
+               log<-c(log,             
+                    paste(length(gages$site_no[-missing]),"sites"),
+                    paste(length(missing),"gages missing data, ignored"),
+                    "\r","\r",
+                    "gages missing all data",
+                    gages$site_no[missing],
+                    "\r","\r",
+                    "gages used",
+                    gages$site_no[-missing])
+               write.table(gages$site_no[missing],sep="/r",file="gages_missing_all_data.txt")
+               write.table(gages$site_no[-missing],sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
+               }
+          
+          else {
+               log<-c(log,             
+                    paste(length(gages$site_no),"sites"),
+                    "\r","\r",
+                    "sites",
+                    gages$site_no)
+               write.table(gages$site_no,sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
+               }
+          
+          }
+          writeLines(log,"flow_retrieval_log.txt")
+          
+     }
 
+#      q.matrices[[nrow(template.period)+1]]<-gages.temp  #save counts of how many records each gages has, for each period aggregated
+     q.matrices[["records"]]<-gages.temp  #save counts of how many records each gages has, for each period aggregated
+     
      return(q.matrices)
      
      

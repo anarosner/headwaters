@@ -2,19 +2,30 @@
 
 ```{r}
 #' @title Get gage location and information from NWIS
-#' @description Get gage information, including site_no and lat/long coordinates from NWIS, by specifying a list of states to search within.
-#' @param states \code{character vector} of state abbreviations
+#' @description Get gage information, including site_no and lat/long coordinates from NWIS, by specifying either 
+#'             1) a shapefile outlining an area in the eastern U.S., or 
+#'             2) a list of states to search within.
+#' @param buffer.file \code{character} file name and location of a shapefile (polygon) that outlines area to find gages within 
+#' @param states \code{character vector} of state abbreviations to search within.  This will only be used if buffer.file is not provided.
 #' @param max.da.sqkm \code{numeric} filter gages by min and max drainage area
 #' @param min.da.sqkm
 #' @param temp.dir \code{character} directory to save temporary files and gage retrieval logs/metadata
-#' @param save.log \code{boolean} whether to save a log
-#' @return \code{data.frame}
+#' @param log.dir \code{character} if provided, will save a log file into the specified directory
+#' @return \code{SpatialPointsDataFrame} of gages within the buffer, with gage info from NWIS
 #' @keywords nwis, gage
+#' @export
 
-gage.get<-function(states=c( "CT", "ME", "MA", "NH", "NY", "RI", "VT"), max.da.sqkm=50, min.da.sqkm=0, 
-                    temp.dir="C:/ALR/Models_processed_data/flow_timeseries", save.log=T, log.dir="C:/ALR/Models_processed_data/flow_timeseries") {     
+gage.retrieve<-function(buffer.file=NULL, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
+                      states=c( "CT", "ME", "MA", "NH", "NY", "RI", "VT"), 
+                      max.da.sqkm=50, min.da.sqkm=0, 
+                      temp.dir="C:/ALR/Models_processed_data/flow_timeseries", 
+                      log.dir=NULL) {     
                               #right now, using my local directory as the defaults.  this is bad, will replace later, etc.
-
+     if(!is.null(buffer.file)) {
+          buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
+          match<-gIntersects(states.spatial,buffer, byid=T)
+          states<-states.spatial$STATE_ABB[match]
+     }
      
      # #get gage info, sites w/ daily flow
 #              (select by list of states, because something is 
@@ -38,26 +49,21 @@ gage.get<-function(states=c( "CT", "ME", "MA", "NH", "NY", "RI", "VT"), max.da.s
      line<-max(grep("agency_cd",raw))
      clean<-raw[c(line,(line+2):length(raw))]
 
-     #save metadata from raw nwis file, and 
-     if (save.log) {
-          if (is.null(log.dir)) 
-               warning("Must specify directory to save log, if save.log==T")
-          else {
-               #save metadata as file and list of gage site_no's
-               writeLines(raw[1:(line-1)],"gages_meta.txt")
-               # [13] "#  agency_cd       -- Agency"                                              
-               # [14] "#  site_no         -- Site identification number"                          
-               # [15] "#  station_nm      -- Site name"                                           
-               # [16] "#  dec_lat_va      -- Decimal latitude"                                    
-               # [17] "#  dec_long_va     -- Decimal longitude"                                   
-               # [18] "#  coord_acy_cd    -- Latitude-longitude accuracy"                         
-               # [19] "#  dec_coord_datum_cd -- Decimal Latitude-longitude datum"                 
-               # [20] "#  huc_cd          -- Hydrologic unit code"                                
-               # [21] "#  drain_area_va   -- Drainage area"                                       
-               # [22] "#  sv_begin_date   -- Site-visit data begin date"                          
-               # [23] "#  sv_end_date     -- Site-visit data end date"                            
-               # [24] "#  sv_count_nu     -- Site-visit data count"
-          }
+     #save metadata from raw nwis file 
+     if (!is.null(log.dir)) {          
+          writeLines(raw[1:(line-1)],"gages_meta.txt")
+          # [13] "#  agency_cd       -- Agency"                                              
+          # [14] "#  site_no         -- Site identification number"                          
+          # [15] "#  station_nm      -- Site name"                                           
+          # [16] "#  dec_lat_va      -- Decimal latitude"                                    
+          # [17] "#  dec_long_va     -- Decimal longitude"                                   
+          # [18] "#  coord_acy_cd    -- Latitude-longitude accuracy"                         
+          # [19] "#  dec_coord_datum_cd -- Decimal Latitude-longitude datum"                 
+          # [20] "#  huc_cd          -- Hydrologic unit code"                                
+          # [21] "#  drain_area_va   -- Drainage area"                                       
+          # [22] "#  sv_begin_date   -- Site-visit data begin date"                          
+          # [23] "#  sv_end_date     -- Site-visit data end date"                            
+          # [24] "#  sv_count_nu     -- Site-visit data count"
      }
      
      #read back in raw file saved in temp directory
@@ -89,7 +95,16 @@ gage.get<-function(states=c( "CT", "ME", "MA", "NH", "NY", "RI", "VT"), max.da.s
      print(paste0(" >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
      print("==========================")
      
-     return(gages.subset)
+
+#      return(gages.subset)
+
+     gages.spatial<-gage.plot(gages.df = gages.subset)
+     if(!is.null(buffer.file)) 
+          gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
+
+
+     return(gages.spatial)
+
 }
 
 
@@ -109,15 +124,20 @@ gage.get<-function(states=c( "CT", "ME", "MA", "NH", "NY", "RI", "VT"), max.da.s
 #' @return \code{SpatialPointsDataFrame}
 #' @keywords gage, SpatialPointsDataFrame
 #' @seealso get.gages
+#' @export
 
-gage.plot<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs") {
+gage.plot<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",plot=F) {
      if (!("dec_long_va" %in% names(gages.df) & "dec_lat_va" %in% names(gages.df) ))
-          stop("Input \"coords_df\" must include columns \"dec_long_va\" and \"dec_lat_va\"")
-     gages.spatial<-SpatialPointsDataFrame(coords=as.matrix(gages_df[,c("dec_long_va","dec_lat_va")]), 
-                      data=gages,
+          stop("Input \"gages.df\" must include columns \"dec_long_va\" and \"dec_lat_va\"")
+     gages.spatial<-SpatialPointsDataFrame(coords=as.matrix(gages.df[,c("dec_long_va","dec_lat_va")]), 
+                      data=gages.df,
                       proj4string=CRS(proj4),
                       match.ID=F)
-
+     if (plot) {
+          plot(gages.spatial)
+          plot(states.spatial,add=T,border="blue")
+     }
+     
      return(gages.spatial)
 }
 ```
@@ -135,10 +155,13 @@ gage.plot<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no
 #' @return SpatialPointsDataFrame
 #' @keywords gage, SpatialPointsDataFrame
 #' @seealso get.gages
+#' @export
 
 
-gage.buffer<-function(gages.spatial, plot=F, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
-                            buffer.file="C:/ALR/Model_processed_dataflow_gages/ctr_states_buffer_no_islands2") {
+gage.buffer<-function(gages.spatial, plot=F, 
+                                   buffer=NULL,
+                                   buffer.file="C:/ALR/Models_processed_data/flow_gages/ctr_states_buffer_no_islands2",
+                                   proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs") {
                          #right now, using my local directory as the defaults.  this is bad, will replace later, etc.
 
      orig.n.gages<-nrow(gages.spatial)
@@ -158,7 +181,8 @@ gage.buffer<-function(gages.spatial, plot=F, proj4="+proj=longlat +ellps=GRS80 +
      
      #load buffer
      #    default is a 100 km buffer around CT R states, but does not include Cape Cod and Long Island     
-     buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
+     if (is.null(buffer))
+          buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
 
      in.buffer<-!is.na(over(gages.spatial,buffer)[,1])
      gages.spatial<-gages.spatial[in.buffer,]
@@ -192,22 +216,32 @@ gage.buffer<-function(gages.spatial, plot=F, proj4="+proj=longlat +ellps=GRS80 +
 #' @return \code{SpatialPointsDataFrame}
 #' @keywords gage, NHDplus
 #' @seealso plot.gages, plot.gages.buffer
+#' @export
 
 
-gage.plot.nhdplus<-function(gages.spatial, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", 
-                             catchment.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment", save.catch=T) {
+gage.plot.nhdplus<-function(gages.spatial,  
+                            catchments=NULL,
+                             catchment.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment", 
+                            proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", save.catch=T) {
                               #right now, using my local directory as the defaults.  this is bad, will replace later, etc.
-
-     catchments<-readShapePoly(catchment.file,proj4string=CRS(proj4),IDvar="FEATUREID")
-     if (save.catch)
-          assign(x = "catchments",value = catchments,envir = .GlobalEnv)
+     
+     if (is.null(catchments)) {
+          print("Starting to load catchments...")
+          catchments<-readShapePoly(catchment.file,proj4string=CRS(proj4),IDvar="FEATUREID")
+          print("Completed loading catchments...")
+          if (save.catch)
+               assign(x = "catchments",value = catchments,envir = .GlobalEnv)     
+     }
+          
+     print("Starting to plot gages to catchments")
      match<-over(gages.spatial,catchments)
      
      gages.spatial@data$FEATUREID<-match$FEATUREID
+     print("Completed plotting gages to catchments")
 
      if ( sum(is.na(gages.spatial$FEATUREID))>0 ) 
-          warning(paste(sum(is.na(gages.spatial$FEATUREID)), "gages did not map to a NHDplus catchement:\n",
-                        gages.spatial[is.na(gages.spatial$FEATUREID),"site_no"]))
+          warning(paste(sum(is.na(gages.spatial$FEATUREID)), "gages did not map to a NHDplus catchment:"))
+          warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"],collapse = "\n"))     
      
      return(gages.spatial)
 }

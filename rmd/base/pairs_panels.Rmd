@@ -6,6 +6,7 @@
 #' @param flag \code{numeric} value between 0 and 1.  above this value, pearson's r will be colored red to flag
 #' @return only prints plot
 #' @keywords pairs, correlation
+#' @export
 
 pairs.custom<-function(df, main=NULL, flag=0.5) {
 

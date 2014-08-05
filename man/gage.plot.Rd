@@ -4,7 +4,7 @@
 \title{Create SpatialPointsDataFrame from data.frame of gage information}
 \usage{
 gage.plot(gages.df,
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")
+  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", plot = F)
 }
 \arguments{
 \item{gages.df}{\code{data.frame} of gage information, including columns titled "dec_long_va" and "dec_lat_va"}

@@ -1,0 +1,40 @@
+
+
+```{r standard roxygen tags to use}
+
+#' @title 
+#' @description 
+#' @param   \code{} 
+#' @param   \code{} 
+#' @param   \code{} 
+#' @return  \code{}
+#' @seealso \code{\link{}}, \code{\link{}}
+
+
+#' @title do_stuff
+#' @description take stuff and outputs some_stuff
+#' @param  stuff \code{character} name of the stuff
+#' @param  count \code{numeric} number of stuffs to take
+#' @param  appreciate \code{boolean} whether to appreciate the stuff or think it's junk
+#' @return some_stuff \code{character}
+#' @seealso \code{\link{buy_more_stuff}}, \code{\link{throw_out_stuff}}
+
+
+
+#' @title Sum of Vector Elements
+#' @description
+#' \code{sum} returns the sum of all the values present in its arguments.
+#'
+#' @details
+#' @param arg description - a description for each function argument. This can span multiple lines (or even paragraphs) if necessary.
+#' @return - the type of object that the function returns
+
+#' @examples - examples of the function in use. 
+#' @seealso - to provide pointers to other related topics
+#' @references - references to scientific literature on this topic
+
+```
+
+
+
+

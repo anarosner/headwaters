@@ -1,7 +1,4 @@
 ```{r purl}
-library(knitr)
-
-
 base.dir<-"C:/ALR/Models/headwaters"
 setwd(base.dir)
 list.files()
@@ -10,14 +7,21 @@ list.files()
 ###danger danger
 # file.remove("NAMESPACE")
 # list.files()
-setwd(file.path(base.dir,"r"))
 list.files()
+# setwd(file.path(base.dir,"r"))
 # file.remove(list.files())
 # list.files()
-setwd(file.path(base.dir,"man"))
 list.files()
+# setwd(file.path(base.dir,"man"))
 # file.remove(list.files())
 # list.files()
+
+```
+
+```{r}
+library(knitr)
+setwd(base.dir)
+
 
 dirs<-c("rmd")
 while (length(dirs)>0) {
@@ -48,56 +52,30 @@ library(devtools)
 library(roxygen2)
 
 setwd(base.dir)
-document(clean = T, reload = T)
+document(clean = T)
 ```
 
-```{r install and load package}
+```{r install package}
 library(devtools)
-# base.dir<-"C:/ALR/Models/headwaters"
+base.dir<-"C:/ALR/Models/headwaters"
 
 setwd(base.dir)
 install()
 
-# setwd("..")
-# install("headwaters")
 ```
 
 ```{r}
-# library(headwaters)
+#install rstudioapi for this to work
+library(devtools)
+library(roxygen2)
+
 setwd(base.dir)
-load_all()
+load_all(pkg = base.dir)
+
+#Everything in the package's data dir *should* load using load_all, or explicitly using load_data.  
+#But, that's not working... this is a temp fix
+for (i in list.files(path = "./data"))
+     load(file.path("data",i), verbose = T )
 ```
-
-
-```{r standard roxygen tags to use}
-
-#' @title 
-#' @description
-#' @param  \code{}
-#' @param  \code{}
-#' @param  \code{}
-#' @return 
-#' @seealso
-
-
-
-#' @title Sum of Vector Elements
-#' @description
-#' \code{sum} returns the sum of all the values present in its arguments.
-#'
-#' @details
-#' @param arg description - a description for each function argument. This can span multiple lines (or even paragraphs) if necessary.
-#' @return - the type of object that the function returns
-
-#' @examples - examples of the function in use. 
-#' @seealso - to provide pointers to other related topics
-#' @references - references to scientific literature on this topic
-
-```
-
-
-
-
-
 
 

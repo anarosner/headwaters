@@ -1,4 +1,4 @@
-```{r}
+## ------------------------------------------------------------------------
 agg.function.weather<-function(df) return( c(precip.mm=sum(df$precip.mm),
                                              tmin=mean(df$tmin),
                                              tmax=mean(df$tmax),
@@ -9,10 +9,9 @@ agg.function.weather<-function(df) return( c(precip.mm=sum(df$precip.mm),
                                              rain=sum(df$rain),
                                              melt=sum(df$melt),
                                              complete=sum(!is.na(df$precip.mm))>=cutoff))
-```
 
 
-```{r}
+## ------------------------------------------------------------------------
 
 weather.retrieve<-function() {
 #      if(!exists("met.poly")) 
@@ -86,5 +85,5 @@ weather.retrieve<-function() {
 #           rm(x,x.agg,x.final,x.snow)
 #      }
 }
-```
+
 

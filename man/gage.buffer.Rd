@@ -3,9 +3,9 @@
 \alias{gage.buffer}
 \title{Filter gages based on whether they fall within a geographic buffer}
 \usage{
-gage.buffer(gages.spatial, plot = F,
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
-  buffer.file = "C:/ALR/Model_processed_dataflow_gages/ctr_states_buffer_no_islands2")
+gage.buffer(gages.spatial, plot = F, buffer = NULL,
+  buffer.file = "C:/ALR/Models_processed_data/flow_gages/ctr_states_buffer_no_islands2",
+  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")
 }
 \arguments{
 \item{gages.spatial}{SpatialPointsDataFrame produced by plot.gages() function}

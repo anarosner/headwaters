@@ -48,7 +48,8 @@ create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily
      template.weather$seasonal<-as.character( to.season(template.weather$date) )
      template.weather$annual<-as.character( to.water.year(template.weather$date) )
 
-     template.weather<-template.weather[,c("date","daily","monthly","seasonal","annual")]
+     period.names<-create.template.periods()$name
+     template.weather<-template.weather[,c("date",period.names)]
      
 #      save(template.weather,file = file.path(pgd.dir,"data","met_template.Rdata"))
 }
@@ -59,7 +60,7 @@ create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily
 #' @title define periods
 #' @description if we want to add different period (i.e. bkt bioperiod), can do it here
 create.template.periods<-function() {
-     template.period<-data.frame(name=c("daily",  "monthly",   "seasonal",    "annual"), min.records=c(1,25,80,345))
+     template.period<-data.frame(name=c("daily",  "monthly",   "seasonal",    "annual"), min.records=c(1,25,80,345), stringsAsFactors = F)
      row.names(template.period)<-template.period$name
      return( template.period )
 }
@@ -78,7 +79,7 @@ create.template.season<-function() {
 #' @description col names for flow stats
 #stats to save from flow
 create.cols.flow<-function() {
-   cols.flow<-c("mean","max","min","low","records.period")
+   cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
    return(cols.flow)   
 } 
 
@@ -103,6 +104,7 @@ create.cols.weather<-function() {
 ## ------------------------------------------------------------------------
 #' @title create the monster list of 3-d matrices for flow
 #' @description used to store aggregated flow data
+#' @export
 create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "seasonal",    "annual"), 
                           template.date=NULL) { #, cols.flow=NULL
      
@@ -110,7 +112,7 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
           template.date<-create.template.date()
 #      if (is.null(cols.flow))
      cols.flow<-create.cols.flow()
-     template.period<-create.template.period()
+     template.period<-create.template.periods()
 
      #create list the length of all periods
      #   but only create matrices for the periods specified
@@ -126,7 +128,8 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
           dimnames(   q.matrices[[i]]    )[[2]]<-gages.spatial$site_no
           dimnames(   q.matrices[[i]]   )[[3]]<-cols.flow
      }
-     names(q.matrices)<-template.period$name
+     q.matrices[[ ( length(template.period$name)+1 ) ]]<-NA
+     names(q.matrices)<-c(template.period$name,"records")
      return(q.matrices)
 }
 
@@ -135,6 +138,7 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
 ## ------------------------------------------------------------------------
 #' @title Create monster list of 3d weather matrices
 #' @description used to store aggregated weather metrics
+#' @export
 create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
                                                                  #template.date=NULL
      if (!("weather.grid.filename" %in% names(gages.spatial)))

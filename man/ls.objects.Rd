@@ -5,21 +5,11 @@
 \usage{
 ls.objects(pos = 1, pattern, alpha = F, head = FALSE, n = 10)
 }
-\arguments{
-\item{\code{}}{}
-
-\item{\code{}}{}
-
-\item{\code{}}{}
-}
 \value{
 only print to console
 }
 \description{
 Customization of ls function, that includes size (memory) of all objects or data in current session environment.
-}
-\examples{
-ls.objects()
 }
 \keyword{ls}
 

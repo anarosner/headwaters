@@ -2,9 +2,11 @@
 
 #' @title Customization of summary function
 #' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles. 
-#' @param  \code{numeric vector}
+#' @param  v \code{numeric vector} values to summarize
+#' @param  hist \code{boolean} if TRUE, will plot a histogram, as well as output text to console
 #' @return only prints summary
-#' @keywords summary, na
+#' @keywords summary
+#' @export
 
 summary.na<-function(v, hist=F) {
      print(data.frame(num.records=length(v)))
@@ -24,13 +26,9 @@ summary.na<-function(v, hist=F) {
 ## ------------------------------------------------------------------------
 #' @title Customization of ls function
 #' @description Customization of ls function, that includes size (memory) of all objects or data in current session environment.
-#' @param  \code{}
-#' @param  \code{}
-#' @param  \code{}
 #' @return only print to console
 #' @keywords ls
-#' @examples 
-#' ls.objects()
+#' @export
 
 ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
      napply <- function(names, fn) sapply(names, function(x)
@@ -66,6 +64,7 @@ ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
 #' @param  string \code{character} string to capitalize
 #' @return character
 #' @keywords string, capitalize
+#' @export
 
 #borrowed from Hmisc package
 capitalize<-function (string) 
@@ -74,6 +73,52 @@ capitalize<-function (string)
      substr(string[capped], 1, 1) <- toupper(substr(string[capped], 
                                                     1, 1))
      return(string)
+}
+
+
+## ------------------------------------------------------------------------
+merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by, 
+     	by.y=by, all.x=TRUE, suffixes = c(".x",".y"), 
+		incomparables = NULL, ...) {
+	if (!('data' %in% slotNames(x)))
+		stop('x has no attributes')
+	d <- x@data
+	d$donotusethisvariablename976 <- 1:nrow(d)
+	
+	y <- unique(y)
+# email, RJH, 12/24/13, replace:
+#	i <- apply(y[, by.y, drop=FALSE], 1, paste) %in% 
+#			apply(x@data[, by.x, drop=FALSE], 1, paste)
+# by the following block:
+
+	i <- apply(y[, by.y, drop=FALSE], 1, 
+		function(x) paste(x, collapse='_')) %in% 
+		apply(x@data[, by.x, drop=FALSE], 1, 
+			function(x) paste(x, collapse='_'))
+	if (all(!i))
+		warning("none of the records in y can be matched to x")
+	else if (sum(!i) > 0)
+		warning(paste(sum(!i), "records in y cannot be matched to x"))
+
+	y <- y[i, ,drop=FALSE]
+	if (isTRUE(any(table(y[, by.y]) > 1)))
+		stop("'y' has multiple records for one or more 'by.y' key(s)")
+	
+	if (!all.x)
+		y$donotusethisvariablename679 <- 1
+	
+	d <- merge(d, y, by=by, by.x=by.x, by.y=by.y, suffixes=suffixes, 
+		incomparables=incomparables, all.x=TRUE, all.y=FALSE)
+	d <- d[order(d$donotusethisvariablename976), ]
+	d$donotusethisvariablename976 <- NULL
+	rownames(d) <- row.names(x)
+	x@data <- d
+
+	if (! all.x) {
+		x <- x[!is.na(x@data$donotusethisvariablename679), ,drop=FALSE] 
+		x@data$donotusethisvariablename679 <- NULL
+	}
+	x
 }
 
 

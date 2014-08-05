@@ -1,7 +1,24 @@
 
+```{r}
+#this is a placeholder
+#right now, just loads rdata w/ data.frame's given to me by kyle
+#in the future, maybe this will be replaced by a rest api call, or something similar?
+basin.char.retrieve<-function(type="char",
+                            basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData",
+                            basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
+     if (type == "char")
+          load(basin.char.file)
+     else if (type == "impound")
+          load(basin.impound.file)
+     
+     temp<-get("UpstreamStats")
+     return(temp)
+}
+```
 
 
 ```{r impoundments}
+
 
 #' @title Get information on upstream barriers and impoundments
 #' @description Load and attach information for each gage on upstream barriers and impoundments.  Uses TNC barrier inventory and FWS survey openwater and wetlands. 
@@ -10,14 +27,22 @@
 #' @param basin.impound.file \code{character} location and name .Rdata file that contains UpstreamStatsImpounded, by NHDplus FEATUREID
 #' @return \code{SpatialPointsDataFrame} of gage info including TNC barriers and area of wetlands and open water
 #' @seealso plot.gages.nhdplus, load.gage.char, filter.gage.impound
+#' @export
 
-gage.load.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData") {
-                                             #right now, using my local directory as the defaults.  
-                                             #this is bad, will replace later, blah blah blah.
+gage.load.impound<-function(gages.spatial, basin.impound.file=NULL)
+          {
+       #      gage.load.impound<-function(gages.spatial, 
+       # basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData") 
+
 
      #load Kyle's zonal stats
-     load(basin.impound.file, verbose = T)
-     basin.impound<-get(x = "UpstreamStatsImpounded")
+#      load(basin.impound.file, verbose = T)
+#      basin.impound<-get(x = "UpstreamStatsImpounded")
+     if (is.null(basin.impound.file))
+          basin.impound<-basin.char.retrieve(type="impound")
+     else
+          basin.impound<-basin.char.retrieve(type="impound",basin.impound.file=basin.impound.file)          
+     
 
      #info on column names and what they represent, from Kyle's zonal stats
      # based on intersection between FWS wetlands survey (CONUS) and med rez flowlines 
@@ -52,7 +77,7 @@ gage.load.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_fro
 
 
      #merge with gages spatial info
-     gages.impound.spatial<-merge(gages.spatial,basin.impound,by="FEATUREID",all.x=T,all.y=F,sort=F)
+     gages.impound.spatial<-merge.sp(gages.spatial,basin.impound,by="FEATUREID",all.x=T,all.y=F,sort=F)
 
      return(gages.impound.spatial)
      
@@ -67,12 +92,14 @@ gage.load.impound<-function(gages.spatial, basin.impound.file="C:/ALR/Models_fro
 #' @param gages.spatial \code{SpatialPointsDataFrame} of gage info including column names "TNC_DamCount" and "OnChannelWaterSqKM"
 #' @return \code{SpatialPointsDataFrame} of gage info that meet default barrier and impoundment criteria
 #' @seealso load.gage.impound
+#' @export
 
 #uses default requirements for unregulated streams
 #placeholder to eventually allow customization of requirements, but that doesn't seem worth the time right now
 gage.filter.impound<-function(gages.spatial) {
 
      gages.spatial.unimpound<-subset(gages.spatial,TNC_DamCount==0 & OnChannelWaterSqKM<.5)
+     return(gages.spatial.unimpound)
 
 }
 
@@ -103,15 +130,22 @@ internal.count.dams<-function(FEATUREID,plusflow=NULL,dams=NULL) {
           queue<-unique(queue)     #eliminate duplicates
           max.length<-max(max.length,length(queue))          
      }#end while loop
-     print(max.length)
+#      print(max.length)
      return( data.frame(FEATUREID=FEATUREID, large=large, small=small) )
 }
 
+```
+
+
+```{r}
+
 #' @title iteratively trace nhdplus network upstream and cound # and size of dams
 #' @description for gages that don't have dam counts and impounded area in basin characteristics only
+#' @export
 gage.trace.dams<-function(gages.spatial, 
                          dam.file="C:/ALR/Data/ConnectivityData/TNC_100k/dams_on_med_rez.dbf", 
                          plusflow.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusAttributes/0205/PlusFLow.dbf") {
+     print("Loading dam information...")
           
      plusflow<-read.dbf(plusflow.file)
      
@@ -122,9 +156,9 @@ gage.trace.dams<-function(gages.spatial,
      dams<-dams[,c("UNIQUE_ID","COMID","deg_barr","NotOnHydro")]
      dams$large<-as.numeric(dams$deg_barr %in% deg.barr.large)
      dams$small<-as.numeric(dams$deg_barr %in% deg.barr.small)
+     print("Starting to trace network upstream for specified dams...")
      
-     
-     f<-unique(g.spatial$FEATUREID)
+     f<-unique(gages.spatial$FEATUREID)
      f<-f[!is.na(f)]
      
      f.d<-c()
@@ -133,9 +167,16 @@ gage.trace.dams<-function(gages.spatial,
           f.d<-rbind( f.d,internal.count.dams( FEATUREID=f[i], plusflow=plusflow, dams=dams ) )
      
      }
-     
-     gages.spatial<-merge(gages.spatial,f.d,all.x=T,all.y=F,by = "FEATUREID",sort = F)
+     print(sessionInfo())
+     print("before merge")
+     print(class(gages.spatial))
+     gages.spatial<-merge.sp(gages.spatial, f.d, by = "FEATUREID")
+#      gages.spatial<-merge(gages.spatial, f.d, all.x=T, all.y=F, by="FEATUREID", sort=F) 
+#      gages.spatial@data<-merge(gages.spatial@data, f.d, all.x=T, all.y=F, by="FEATUREID", sort=F) 
+     print("after merge")
+     print(class(gages.spatial))
 
+     return(gages.spatial)
 
 }
 ```
@@ -144,10 +185,12 @@ gage.trace.dams<-function(gages.spatial,
 ```{r}
 #' @title filter by dams traced through gage.trace.dams
 #' @description filter by dams traced through gage.trace.dams
+#' @export
 
 gage.filter.dams<-function(gages.spatial) {
      gages.spatial<-subset(g.spatial,!is.na(FEATUREID))
      gages.spatial<-subset(gages.spatial,large==0 & small==0)
+     return(gages.spatial)
 }
 ```
 
@@ -160,22 +203,30 @@ gage.filter.dams<-function(gages.spatial) {
 #' @param basin.char.file \code{character} location andname of .Rdata file that contains UpstreamStats, by NHDplus FEATUREID
 #' @return \code{SpatialPointsDataFrame} of gage info including upstream basin characteristics
 #' @seealso plot.gages.nhdplus, load.gage.impound
+#' @export
 
-gage.load.char<-function(gages.spatial, basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
-                                             #right now, using my local directory as the defaults.  this is bad, will replace later.
+gage.load.char<-function(gages.spatial, basin.char.file=NULL, use.default.cols=F) {
 
      #load Kyle's zonal stats
-     load(basin.char.file)
-     basin.char<-get("UpstreamStats")
-     basin.char<-basin.char[,c("FEATUREID","Forest","Herbacious","Agriculture",
+#      load(basin.char.file)
+#      basin.char<-get("UpstreamStats")
+     if (is.null(basin.char.file))
+          basin.char<-basin.char.retrieve( type="char" )
+     else
+          basin.char<-basin.char.retrieve( type="char", basin.char.file=basin.char.file )
+     
+     if (use.default.cols){
+          basin.char<-basin.char[,c("FEATUREID","Forest","Herbacious","Agriculture",
                                    "Developed","DevelopedNotOpen","Impervious",
                                    "AnnualTmaxC","AnnualTminC",
                                    "AnnualPrcpMM","SummerPrcpMM","WinterPrcpMM",
                                    "DrainageClass","HydrologicGroupAB","HydrologicGroupCD","SurficialCoarseC","PercentSandy",
                                    "ReachElevationM","BasinElevationM","ReachSlopePCNT","BasinSlopePCNT","TotDASqKM")]
-                                   #right now, limiting the number of columns, for readability. can change this later, once we figure out how basin char will be accessed
+                                   #right now, limiting the number of columns, for readability. 
+                                   #can change this later, once we figure out how basin char will be accessed
+     }
 
-     gages.char.spatial<-merge(gages.spatial,basin.char,by="FEATUREID",all.x=T,all.y=F,sort=F)
+     gages.char.spatial<-merge.sp( gages.spatial, basin.char, by="FEATUREID", all.x=T, all.y=F, sort=F)
 
      return(gages.char.spatial)
 }

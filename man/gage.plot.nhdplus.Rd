@@ -3,9 +3,9 @@
 \alias{gage.plot.nhdplus}
 \title{Assigns each gage to a NHDplus catchment/stream reach}
 \usage{
-gage.plot.nhdplus(gages.spatial,
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
+gage.plot.nhdplus(gages.spatial, catchments = NULL,
   catchment.file = "C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment",
+  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
   save.catch = T)
 }
 \arguments{
