@@ -22,6 +22,7 @@ Depends:
     rgdal,
     rgeos,
     sp (>= 1.0-15),
+    deldir,
     topmodel,
     USGSwsStats,
     waterData,

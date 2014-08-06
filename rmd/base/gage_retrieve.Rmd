@@ -227,6 +227,7 @@ gage.plot.nhdplus<-function(gages.spatial,
      
      if (is.null(catchments)) {
           print("Starting to load catchments...")
+          print("    (this part could take a while)    ")
           catchments<-readShapePoly(catchment.file,proj4string=CRS(proj4),IDvar="FEATUREID")
           print("Completed loading catchments...")
           if (save.catch)

@@ -23,6 +23,7 @@ agg.function.flow<-function(df,cutoff) {
 #' @export
 flow.retrieve<-function(gages.spatial, 
                         periods=c("seasonal","annual"),
+                        create.cols.function = create.cols.flow,
                         agg.function = agg.function.flow,
                         log.dir=NULL) {
      
