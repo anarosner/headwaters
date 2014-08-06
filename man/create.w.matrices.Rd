@@ -3,8 +3,8 @@
 \alias{create.w.matrices}
 \title{Create monster list of 3d weather matrices}
 \usage{
-create.w.matrices(gages.spatial, periods = c("daily", "monthly", "seasonal",
-  "annual"))
+create.w.matrices(weather.filenames, periods = c("daily", "monthly",
+  "seasonal", "annual"))
 }
 \description{
 used to store aggregated weather metrics

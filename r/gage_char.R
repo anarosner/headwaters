@@ -165,14 +165,10 @@ gage.trace.dams<-function(gages.spatial,
           f.d<-rbind( f.d,internal.count.dams( FEATUREID=f[i], plusflow=plusflow, dams=dams ) )
      
      }
-     print(sessionInfo())
-     print("before merge")
-     print(class(gages.spatial))
+
      gages.spatial<-merge.sp(gages.spatial, f.d, by = "FEATUREID")
 #      gages.spatial<-merge(gages.spatial, f.d, all.x=T, all.y=F, by="FEATUREID", sort=F) 
 #      gages.spatial@data<-merge(gages.spatial@data, f.d, all.x=T, all.y=F, by="FEATUREID", sort=F) 
-     print("after merge")
-     print(class(gages.spatial))
 
      return(gages.spatial)
 

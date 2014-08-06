@@ -1,10 +1,4 @@
 ## ------------------------------------------------------------------------
-
-# q.matrices<-create.q.matrices(gages.spatial =  periods=c("daily",  "monthly",   "seasonal",    "annual")
-
-
-
-## ------------------------------------------------------------------------
 #' @title Create template of dates 
 #' @description Create template of dates to mark each period for both flow and weather data
 create.template.date<-function () {
@@ -25,33 +19,6 @@ create.template.date<-function () {
                                     #LAST date of year 
                                     #(so the date of oct-dec months is the same as following jan-sept months)
      return(template.date)
-}
-
-
-
-## ------------------------------------------------------------------------
-#' @title Create template of dates in mauer weather data
-#' @description mauer dates
-create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily/east") {
-     
-#                                            pkg.dir="c:/alr/models/headwaters"
-     setwd(mauer.dir)
-
-     #get dimensions for 3-d array, date, and calculate month/season/annual date columns
-     template.weather<-read.table(file=list.files()[1],col.names=cols.mauer)
-     
-     template.weather$date<-apply(template.weather[,1:3],MARGIN=1,FUN=function(d) (paste(d,collapse="-")))
-     template.weather$date<-as.Date(template.weather$date)
-     
-     template.weather$daily<-as.character(template.weather$date)
-     template.weather$monthly<-as.character( to.month(template.weather$date) )
-     template.weather$seasonal<-as.character( to.season(template.weather$date) )
-     template.weather$annual<-as.character( to.water.year(template.weather$date) )
-
-     period.names<-create.template.periods()$name
-     template.weather<-template.weather[,c("date",period.names)]
-     
-#      save(template.weather,file = file.path(pgd.dir,"data","met_template.Rdata"))
 }
 
 
@@ -83,19 +50,17 @@ create.cols.flow<-function() {
    return(cols.flow)   
 } 
 
-#' @title col names for weather input data
-#' @description col names for mauer weather data.  original inputs do not have column headers
-#columns from mauer
-create.cols.mauer<-function() {
-     cols.mauer<-c("year", "month", "day","precip.mm", "tmax","tmin","wind")
-     return(cols.mauer)
-}
 
 #' @title col names for weather metrics
 #' @description col names for our processed/saved weather metrics
 #precip_mm  tmax  tmin
 create.cols.weather<-function() {
-     cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3","tmin","tmax","tavg","pet","gdd","frozen")
+     cols.weather<-c("precip.total","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+                     "tmin","tmax","tavg",
+                     "pet","pet.lag1","pet.lag2","gdd","gdd.lag1","gdd.lag2",
+                     "frozen","melt.doy","melt.doy.lag1","melt.doy.lag2")
+#      cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+#                      "tmin","tmax","tavg","pet","gdd","frozen","melt.doy")
      return(cols.weather)
 }
 
@@ -139,13 +104,14 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
 #' @title Create monster list of 3d weather matrices
 #' @description used to store aggregated weather metrics
 #' @export
-create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
+create.w.matrices<-function(weather.filenames,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
                                                                  #template.date=NULL
-     if (!("weather.grid.filename" %in% names(gages.spatial)))
-          stop("Must provide gages.spatial object that has been assigned weather.grid.filename")
-     
+#      if (!("weather.filename" %in% names(gages.spatial)))
+#           stop("Must provide gages.spatial object that has been assigned weather.filename")
+#      
 #      if (is.null(template.date))
      template.date<-create.template.date()
+     template.period<-create.template.periods()
      cols.weather<-create.cols.weather()
      
      w.matrices<-list()
@@ -153,13 +119,13 @@ create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seas
           print(j)
           i<-which(template.period$name==j)
           w.matrices[[i]]<-array(dim=c(  nrow(template.date[[j]]), 
-                                         length(unique(gages.spatial$weather.grid.filename)), 
+                                         length(weather.filenames), 
                                          length(cols.weather))  ) 
           dimnames(   w.matrices[[i]]   )[[1]]<-template.date[[j]][,1]
-          dimnames(   w.matrices[[i]]    )[[2]]<-sort(unique(gages.spatial$weather.grid.filename))
+          dimnames(   w.matrices[[i]]    )[[2]]<-weather.filenames
           dimnames(   w.matrices[[i]]   )[[3]]<-cols.weather
      }
-     names(q.matrices)<-template.period$name
+     names(w.matrices)<-template.period$name
      return(w.matrices)
 }
 
