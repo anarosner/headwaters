@@ -130,6 +130,8 @@ create.cols.mauer<-function() {
 #' @title Create template of dates in mauer weather data
 #' @description mauer dates
 create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily/east") {
+     #***take a look at this later. i can't remember why this is necessary, instead of just using create.template.mauer
+     #maybe replace later
      
      cols.mauer<-create.cols.mauer()
      

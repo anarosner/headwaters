@@ -58,7 +58,12 @@ create.cols.flow<-function() {
 #' @description col names for our processed/saved weather metrics
 #precip_mm  tmax  tmin
 create.cols.weather<-function() {
-     cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3","tmin","tmax","tavg","pet","gdd","frozen")
+     cols.weather<-c("precip.total","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+                     "tmin","tmax","tavg",
+                     "pet","pet.lag1","pet.lag2","gdd","gdd.lag1","gdd.lag2",
+                     "frozen","melt.doy","melt.doy.lag1","melt.doy.lag2")
+#      cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+#                      "tmin","tmax","tavg","pet","gdd","frozen","melt.doy")
      return(cols.weather)
 }
 
@@ -103,13 +108,14 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
 #' @title Create monster list of 3d weather matrices
 #' @description used to store aggregated weather metrics
 #' @export
-create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
+create.w.matrices<-function(weather.filenames,periods=c("daily",  "monthly",   "seasonal",    "annual")) {
                                                                  #template.date=NULL
-     if (!("weather.grid.filename" %in% names(gages.spatial)))
-          stop("Must provide gages.spatial object that has been assigned weather.grid.filename")
-     
+#      if (!("weather.filename" %in% names(gages.spatial)))
+#           stop("Must provide gages.spatial object that has been assigned weather.filename")
+#      
 #      if (is.null(template.date))
      template.date<-create.template.date()
+     template.period<-create.template.periods()
      cols.weather<-create.cols.weather()
      
      w.matrices<-list()
@@ -117,13 +123,13 @@ create.w.matrices<-function(gages.spatial,periods=c("daily",  "monthly",   "seas
           print(j)
           i<-which(template.period$name==j)
           w.matrices[[i]]<-array(dim=c(  nrow(template.date[[j]]), 
-                                         length(unique(gages.spatial$weather.grid.filename)), 
+                                         length(weather.filenames), 
                                          length(cols.weather))  ) 
           dimnames(   w.matrices[[i]]   )[[1]]<-template.date[[j]][,1]
-          dimnames(   w.matrices[[i]]    )[[2]]<-sort(unique(gages.spatial$weather.grid.filename))
+          dimnames(   w.matrices[[i]]    )[[2]]<-weather.filenames
           dimnames(   w.matrices[[i]]   )[[3]]<-cols.weather
      }
-     names(q.matrices)<-template.period$name
+     names(w.matrices)<-template.period$name
      return(w.matrices)
 }
 
