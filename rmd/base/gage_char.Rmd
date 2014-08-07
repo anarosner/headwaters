@@ -156,12 +156,12 @@ gage.trace.dams<-function(gages.spatial,
      dams<-dams[,c("UNIQUE_ID","COMID","deg_barr","NotOnHydro")]
      dams$large<-as.numeric(dams$deg_barr %in% deg.barr.large)
      dams$small<-as.numeric(dams$deg_barr %in% deg.barr.small)
-     cat(paste("Starting to trace network upstream for",length(f),"gages...","\r","    "))
      
      f<-unique(gages.spatial$FEATUREID)
      f<-f[!is.na(f)]
      
      f.d<-c()
+     cat(paste("Starting to trace network upstream for",length(f),"gages...","\r","    "))
      for (i in 1:length(f)) {
           cat( paste( "... ", i ))
           f.d<-rbind( f.d,internal.count.dams( FEATUREID=f[i], plusflow=plusflow, dams=dams ) )

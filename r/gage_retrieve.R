@@ -88,7 +88,7 @@ gage.retrieve<-function(buffer.file=NULL, proj4="+proj=longlat +ellps=GRS80 +dat
      gages.all$da_sqkm<-gages.all$drain_area_va*2.58999
      gages.subset<-subset(x=gages.all,  gages.all$da_sqkm<=max.da.sqkm & gages.all$da_sqkm>min.da.sqkm )
 
-     message(paste0("Gage retrieval complete","\r",
+     message(paste0("Gage retrieval complete\r",
                     nrow(gages.subset),  " gages identified","\r",
                     "Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
 
@@ -194,8 +194,8 @@ gage.buffer<-function(gages.spatial, plot=F,
           plot(gages.spatial,add=T,col="red")
      }
      
-     message(paste(nrow(gages.spatial), "gages","\r",
-                   "     (", orig.n.gages-nrow(gages.spatial)," gages eliminated)"))
+#      message(paste(nrow(gages.spatial), "gages","\r",
+#                    "     (", orig.n.gages-nrow(gages.spatial)," gages eliminated)"))
 
      return(gages.spatial)
 
@@ -239,7 +239,7 @@ gage.place.nhdplus<-function(gages.spatial,
 
      if ( sum(is.na(gages.spatial$FEATUREID))>0 ) 
           warning(paste(sum(is.na(gages.spatial$FEATUREID)), "gages did not map to a NHDplus catchment:"))
-          warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"], sep=";  ", collapse="" ))     
+          warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"], collapse="; " ))     
      
      return(gages.spatial)
 }

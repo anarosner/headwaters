@@ -5,11 +5,11 @@ list.files()
 
 
 ###danger danger
-# file.remove("NAMESPACE")
-# list.files()
-# list.files()
+file.remove("NAMESPACE")
+list.files()
 
-setwd(file.path(base.dir,"r"))
+# setwd(file.path(base.dir,"r"))
+# list.files()
 # file.remove(list.files())
 # list.files()
 
