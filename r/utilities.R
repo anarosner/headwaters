@@ -124,39 +124,34 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 
 ## ------------------------------------------------------------------------
 save.log <- function(text, dir, filename, ext="txt") {
-#      ext="txt"
+     #rough draft... to clean up
+     
+     #      ext="txt"
 #      filename="file"
 #      boo<-c("file001.txt","file002.txt","file005.txt","file011.txt","otherfile.txt")
 
      setwd(dir)
      boo<-list.files()
-     print(boo)
      if ( length(boo)==0 )
           boo6<-paste( filename, "001", ".", ext, collapse="", sep="" )
      else {
                
           boo2<-sapply(boo, FUN=function(n) substr(n, start=1, stop=(nchar(n)-nchar(ext)-1-3)))
-          print(boo2)
           boo3<-boo[boo2==filename]
-          print(boo3)
 
           if ( length(boo3)==0 )
                     boo6<-paste( filename, "001", ".", ext, collapse="", sep="" )
           else {
                
-               boo2
                boo4<-sapply(X = boo3, FUN = function(n) {
                     start <- nchar(n) - (nchar(ext)+1) -3 +1
                     as.numeric( substr( x=n, start=start, stop=(start+3-1)) ) }
                     )
-               print(boo4)
                boo5<-max(boo4)+1
-               print(boo5)
                boo6<-paste( filename, zeropad(boo5, LEN = 3), ".", ext, collapse="", sep="" )
           }
      }
 
-     print(boo6)
      {
      if ( is.data.frame(text) | is.matrix(text) )
           write.csv( text, file=boo6, row.names=F )

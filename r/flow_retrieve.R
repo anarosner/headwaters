@@ -39,10 +39,10 @@ flow.retrieve<-function(gages.spatial,
      #create matrix for storing flow data
      q.matrices<-create.q.matrices(gages.spatial=gages.spatial, periods=periods, template.date=template.date)
      
-     print("Begin loading and aggregating stream flow observations...")
+     cat("Begin loading and aggregating stream flow observations...\r")
      missing<-c() #save site_no id's of gages missing all data, or if unable to retrieve records
      for (k in 1:length(gages$site_no))     {
-          print(paste("###  Loading/aggregating gage", k, "of", length(gages$site_no), "  ###"))
+          cat(paste("  --  Loading/aggregating gage", k, "of", length(gages$site_no), "  --  "))
           flag<-F
           
           #read raw, daily flow data
@@ -50,8 +50,8 @@ flow.retrieve<-function(gages.spatial,
                x.all<-importDVs(gages$site_no[k], code = "00060", stat = "00003"),
                error = function(e) {
                     missing<-c(missing,k)
-                    print(paste("ERROR CAUGHT------ station_id:",gages$site_no[k],"missing"))
-                    print(e)
+                    warning(paste("Gage",gages$site_no[k],"missing data", 
+                                  "\r",e))
                     flag<-T
                })
      
@@ -62,7 +62,7 @@ flow.retrieve<-function(gages.spatial,
                                              #  flow/discharge cfs, code 00060
                                              #  daily mean, code 00003
                x.all<-cleanUp(x.all,task="fix",replace=NA) #waterData function to fix common problems (sets NAs, I think)
-               print(paste0("     Gage ",gages$site_no[k],", loaded ",nrow(x.all)," rows"))
+               cat(paste0("        Gage ",gages$site_no[k],", loaded ",nrow(x.all)," rows\r"))
                if ( sum(duplicated(x.all$dates)) ) {  
                     #wouldn't think this would be an issue, but some gages have duplicated dates
                     #for now, just keeping the first record for a date and removing the rest.  down the line, maybe want to do some sort of comparison of duplicates

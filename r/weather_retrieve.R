@@ -32,7 +32,7 @@ weather.retrieve<-function(gages.spatial,
      
      #warn user if hasn't assigned weather grid.  later, change to just call function to assign weather grid if it hasn't been done already
      if ( !("weather.filename" %in% names(gages.spatial)) )
-          stop("Please first plot gages to weather grids using \"gage.plot.weather\" ")
+          stop("Please first plot gages to weather grids using \"gage.place.weather.grid\" ")
      
      #generate a data.frame of *unique* weather grids used by all gages
      selected.weather.files<-gages.spatial[,c("weather.filename","region")]
@@ -57,10 +57,10 @@ weather.retrieve<-function(gages.spatial,
      
 
      #loop through weather grid cells and pull and aggregate observation records
-     print(paste( "Begin reading", nrow(selected.weather.files), "met files..." ))
+     cat(paste( "Begin reading", nrow(selected.weather.files), "met files...\r" ))
      for (i in 1:nrow(selected.weather.files) ) {
      
-          print( paste( "  --  loading file", i, "of", nrow(selected.weather.files), "  --  " ))
+          cat( paste( "  --  loading file", i, "of", nrow(selected.weather.files), "  --  \r" ))
           
           weather.file<-file.path(weather.dir, 
                          selected.weather.files$region[i],
@@ -130,13 +130,9 @@ weather.retrieve<-function(gages.spatial,
      
 #                     w.matrices[[j]][,i,] <- as.matrix(x.agg[,cols.weather])
                     x.final<-as.matrix(x.agg[,cols.weather])
-print("=== x.final")
-print(head(x.final))
-
                     w.matrices[[j]][,selected.weather.files$weather.filename[i],]<-x.final
-print("=== w.matrices")
-print(head(w.matrices[[j]][,selected.weather.files$weather.filename[i],]))
-               }#end loop periods
+
+}#end loop periods
                
           }#end check that file exists
           else

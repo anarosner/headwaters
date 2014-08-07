@@ -4,7 +4,6 @@ Description: Tools for collecting streamflow data, meteorological data, and
     basin characteristics for hydrological modeling.
 Version: 0.1
 Depends:
-    dplyr,
     reshape2,
     ggplot2,
     DataCombine,

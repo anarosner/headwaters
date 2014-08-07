@@ -41,14 +41,14 @@ bias<-function(obs,pred) {
 goodness<-function(df=NULL,obs=NULL,pred=NULL) {
      if(is.null(obs) | is.null(pred)){
           if(is.null(df)){
-               print("ERROR: must define obs and pred vectors, 
+               stop("Must define obs and pred vectors, 
                      or data frame w/ obs and pred columns")
-               return(NULL)
+#                return(NULL)
           }
-          else{
+#           else{
                obs<-df$obs
                pred<-df$pred
-          }
+#           }
      }
      f<-data.frame(sample.n=length(obs),mean=mean(obs))
      f$RMSE<-rmse(obs,pred)

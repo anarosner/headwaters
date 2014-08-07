@@ -7,12 +7,14 @@ list.files()
 ###danger danger
 # file.remove("NAMESPACE")
 # list.files()
-list.files()
-# setwd(file.path(base.dir,"r"))
+# list.files()
+
+setwd(file.path(base.dir,"r"))
 # file.remove(list.files())
 # list.files()
-list.files()
+
 # setwd(file.path(base.dir,"man"))
+# list.files()
 # file.remove(list.files())
 # list.files()
 

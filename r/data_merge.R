@@ -1,4 +1,37 @@
-```{r}
+## ------------------------------------------------------------------------
+
+data.merge<-function( gages.spatial, q.matrix, w.matrix, periods=c("seasonal") ) {
+     
+     cols.flow<-create.cols.flow()
+     cols.weather<-create.cols.weather()
+     template.period<-create.template.periods()
+     template.date<-create.template.date()
+
+     #create list the length of all periods
+     #   but only create matrices for the periods specified
+     #   this is so the index in the list for period x is consistent no matter how many periods are specified
+     d.matrices<-list()
+     
+     for (j in periods) {
+#           print(j)
+          i<-which(template.period$name==j)
+          d.matrices[[j]] < -array(dim=c(nrow(template.date), #dates
+                                         nrow(gages.spatial), #gages
+                                         length(cols.flow) + length(cols.weather)  )) #climate and flow stats
+#
+#           .matrices[[i]]<-array(dim=c(   nrow(template.date[[j]]), 
+#                                           length(gages.spatial$site_no), 
+#                                           length(cols.flow))  ) 
+          dimnames(   .matrices[[i]]   )[[1]]<-template.date[[j]][,1]
+          dimnames(   .matrices[[i]]    )[[2]]<-gages.spatial$site_no
+          dimnames(   .matrices[[i]]   )[[3]]<-cols.flow
+     }
+     
+     names(d.matrices)<-template.period$name
+     return(d.matrices)
+     
+     
+}
 # dseasonal1<-array(dim=c(dim(qseasonal)[1], #dates
 #                         nrow(gages.met.spatial), #gages
 #                         dim(cseasonal)[3]+dim(qseasonal)[3])) #climate and flow stats
@@ -28,5 +61,5 @@
 # dseasonal$season<-to.season(d=dseasonal$date,"season")
 # dseasonal$year<-year(as.Date(as.character(dseasonal$date)))
 # dseasonal$precip.e<-dseasonal$rain+dseasonal$melt
-```
+
 

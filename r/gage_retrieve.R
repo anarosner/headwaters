@@ -49,8 +49,9 @@ gage.retrieve<-function(buffer.file=NULL, proj4="+proj=longlat +ellps=GRS80 +dat
      clean<-raw[c(line,(line+2):length(raw))]
 
      #save metadata from raw nwis file 
-     if (!is.null(log.dir)) {          
-          writeLines(raw[1:(line-1)],"gages_meta.txt")
+     if (!is.null(log.dir)) {    
+          save.log( text=raw[1:(line-1)], dir=log.dir, filename="gages_meta", ext="txt" )
+#           writeLines(raw[1:(line-1)],"gages_meta.txt")
           # [13] "#  agency_cd       -- Agency"                                              
           # [14] "#  site_no         -- Site identification number"                          
           # [15] "#  station_nm      -- Site name"                                           
@@ -87,17 +88,22 @@ gage.retrieve<-function(buffer.file=NULL, proj4="+proj=longlat +ellps=GRS80 +dat
      gages.all$da_sqkm<-gages.all$drain_area_va*2.58999
      gages.subset<-subset(x=gages.all,  gages.all$da_sqkm<=max.da.sqkm & gages.all$da_sqkm>min.da.sqkm )
 
-     print("==========================")
-     print("Gage retrieval complete")
-     print(paste0(nrow(gages.subset),  " gages identified\n"))
-     print(paste0("   (", nrow(gages.all)-nrow(gages.subset), " eliminated due to specified size requirements:"))
-     print(paste0(" >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
-     print("==========================")
+     message(paste0("Gage retrieval complete","\r",
+                    nrow(gages.subset),  " gages identified","\r",
+                    "Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
+
+
+#      print("==========================")
+#      print("Gage retrieval complete")
+#      print(paste0(nrow(gages.subset),  " gages identified"))
+#      print(paste0("   (", nrow(gages.all)-nrow(gages.subset), " gages eliminated due to specified size requirements:"))
+#      print(paste0(" >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
+#      print("==========================")
      
 
 #      return(gages.subset)
 
-     gages.spatial<-gage.plot(gages.df = gages.subset)
+     gages.spatial<-gage.place.spatial(gages.df = gages.subset)
      if(!is.null(buffer.file)) 
           gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
 
@@ -122,7 +128,7 @@ gage.retrieve<-function(buffer.file=NULL, proj4="+proj=longlat +ellps=GRS80 +dat
 #' @seealso get.gages
 #' @export
 
-gage.plot<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",plot=F) {
+gage.place.spatial<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",plot=F) {
      if (!("dec_long_va" %in% names(gages.df) & "dec_lat_va" %in% names(gages.df) ))
           stop("Input \"gages.df\" must include columns \"dec_long_va\" and \"dec_lat_va\"")
      gages.spatial<-SpatialPointsDataFrame(coords=as.matrix(gages.df[,c("dec_long_va","dec_lat_va")]), 
@@ -186,9 +192,10 @@ gage.buffer<-function(gages.spatial, plot=F,
           par(mfrow=c(1,1))
           plot(gages.spatial)
           plot(gages.spatial,add=T,col="red")
-          print(paste(nrow(gages.spatial), "gages"))
-          print(paste0("     (", orig.n.gages-nrow(gages.spatial)," gages eliminated)"))
      }
+     
+     message(paste(nrow(gages.spatial), "gages","\r",
+                   "     (", orig.n.gages-nrow(gages.spatial)," gages eliminated)"))
 
      return(gages.spatial)
 
@@ -209,30 +216,30 @@ gage.buffer<-function(gages.spatial, plot=F,
 #' @export
 
 
-gage.plot.nhdplus<-function(gages.spatial,  
+gage.place.nhdplus<-function(gages.spatial,  
                             catchments=NULL,
                              catchment.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment", 
                             proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", save.catch=T) {
                               #right now, using my local directory as the defaults.  this is bad, will replace later, etc.
      
      if (is.null(catchments)) {
-          print("Starting to load catchments...")
-          print("    (this part could take a while)    ")
+          cat("Starting to load catchments...\r")
+          cat("    (this part could take a while)    \r")
           catchments<-readShapePoly(catchment.file,proj4string=CRS(proj4),IDvar="FEATUREID")
-          print("Completed loading catchments...")
+          cat("Completed loading catchments...\r")
           if (save.catch)
                assign(x = "catchments",value = catchments,envir = .GlobalEnv)     
      }
           
-     print("Starting to plot gages to catchments")
+     cat("Starting to plot gages to catchments\r")
      match<-over(gages.spatial,catchments)
      
      gages.spatial@data$FEATUREID<-match$FEATUREID
-     print("Completed plotting gages to catchments")
+     cat("Completed plotting gages to catchments")
 
      if ( sum(is.na(gages.spatial$FEATUREID))>0 ) 
           warning(paste(sum(is.na(gages.spatial$FEATUREID)), "gages did not map to a NHDplus catchment:"))
-          warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"],collapse = "\n"))     
+          warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"], sep=";  ", collapse="" ))     
      
      return(gages.spatial)
 }

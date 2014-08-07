@@ -143,7 +143,7 @@ internal.count.dams<-function(FEATUREID,plusflow=NULL,dams=NULL) {
 gage.trace.dams<-function(gages.spatial, 
                          dam.file="C:/ALR/Data/ConnectivityData/TNC_100k/dams_on_med_rez.dbf", 
                          plusflow.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusAttributes/0205/PlusFLow.dbf") {
-     print("Loading dam information...")
+     cat("Loading dam information...\r")
           
      plusflow<-read.dbf(plusflow.file)
      
@@ -154,14 +154,14 @@ gage.trace.dams<-function(gages.spatial,
      dams<-dams[,c("UNIQUE_ID","COMID","deg_barr","NotOnHydro")]
      dams$large<-as.numeric(dams$deg_barr %in% deg.barr.large)
      dams$small<-as.numeric(dams$deg_barr %in% deg.barr.small)
-     print("Starting to trace network upstream for specified dams...")
+     cat(paste("Starting to trace network upstream for",length(f),"gages...","\r","    "))
      
      f<-unique(gages.spatial$FEATUREID)
      f<-f[!is.na(f)]
      
      f.d<-c()
      for (i in 1:length(f)) {
-          print( paste("========",i,"of", length(f), "::",f[i],"=========" ))
+          cat( paste( "... ", i ))
           f.d<-rbind( f.d,internal.count.dams( FEATUREID=f[i], plusflow=plusflow, dams=dams ) )
      
      }
@@ -198,7 +198,13 @@ gage.filter.dams<-function(gages.spatial) {
 #' @export
 
 gage.load.char<-function(gages.spatial, basin.char.file=NULL, use.default.cols=F) {
-
+     #something to improve later: if there are basins that don't match, outputs generic warning
+     #   ## Warning: 101 records in y cannot be matched to x
+     # but should customize it so that it's specific to our x and y
+     
+     
+     #also, see if i can find a better solution to sp merge issue
+     
      #load Kyle's zonal stats
 #      load(basin.char.file)
 #      basin.char<-get("UpstreamStats")

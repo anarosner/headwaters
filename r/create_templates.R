@@ -84,7 +84,7 @@ create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "sea
      #   this is so the index in the list for period x is consistent no matter how many periods are specified
      q.matrices<-list() #nrow(template.period)
      for (j in periods) {
-          print(j)
+#           print(j)
           i<-which(template.period$name==j)
           q.matrices[[i]]<-array(dim=c(   nrow(template.date[[j]]), 
                                           length(gages.spatial$site_no), 
@@ -116,7 +116,7 @@ create.w.matrices<-function(weather.filenames,periods=c("daily",  "monthly",   "
      
      w.matrices<-list()
      for (j in periods) {
-          print(j)
+#           print(j)
           i<-which(template.period$name==j)
           w.matrices[[i]]<-array(dim=c(  nrow(template.date[[j]]), 
                                          length(weather.filenames), 

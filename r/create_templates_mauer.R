@@ -46,7 +46,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
      weather.filenames<-as.data.frame( matrix( ncol=2, nrow=0 ) )
      names(weather.filenames)<-c("weather.filename", "region")
      for (i in regions) {
-          print( paste( "Retrieving grid centroids for region", i, "from file names..." ) )
+          cat( paste( "Retrieving grid centroids for region", i, "from file names...\r" ) )
           setwd( file.path( weather.dir, i ) )
           temp.files<-list.files()
           weather.filenames[ (nrow(weather.filenames)+1):(nrow(weather.filenames)+length(temp.files)),]<-
@@ -62,7 +62,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 #      grid.y<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,6,12 ) )
 #      grid.x<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,14,21 ) )
 
-     print("Creating spatial object of grid centroids...")
+     cat("Creating spatial object of grid centroids...\r")
      grid.points<-SpatialPointsDataFrame(coords=weather.filenames[ , c("x","y") ],
                                              data=weather.filenames,
                                              proj4string=CRS( proj4 ) )
@@ -70,8 +70,8 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
      #                                              data=weather.filenames,
      #                                              proj4string=CRS( proj4 ) )
           
-     print("Creating Voronoi polygons around grid centroids...")
-     print("    (this part could take a while)    ")
+     cat("Creating Voronoi polygons around grid centroids...\r")
+     cat("    (this part could take a while)    \r")
      weather.grid.poly<-voronoipolygons(grid.points)
 #      weather.grid.poly@data<-weather.grid.poly@data[,c(3,1,2)]
      
@@ -84,7 +84,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
           writeOGR(grid.temp,  ".", layer="weather_grid", driver="ESRI Shapefile")
      }
 
-     print("Completed creating weather grid")
+     cat("Completed creating weather grid")
      return( weather.grid.poly )
 
 }
