@@ -16,25 +16,61 @@
 #' @seealso \code{\link{headwaters::to.water.year}}, \code{\link{headwaters::to.month}}
 #' @keywords dates, season
 #' @export
-
-to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
-     x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
+to.season<-function(d, return.type="date", input.type="date" ) {           #,out.fmt="seasons"
      
-     x[x$month>=12,"year"]<-x[x$month>=12,"year"]+1
-     x[,c("season.date","season")]<-matrix(unlist(
-          lapply(x$month, function(y) {
-               if(y %in% 9:11) c("11/28","fall")
-               else if (y %in% c(12,1:2)) c("2/28","winter")
-               else if (y %in% 3:5) c("5/28","spring") 
-               else if (y %in% 6:8) c("8/28","summer")})),ncol=2,byrow=T)
-     x$season.date<-as.Date(paste0(x$year,"/",x$season.date))
-     if (return.type=="date")
-          return(x[,"season.date"])  
-     else if (return.type=="season")
-          return(x[,"season"])  
-     else if (return.type=="all")
-          return(as.data.frame(x[,c("season","season.date","year")]) )  
+     if ( input.type=="date" ) {     
+          x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
+          
+          x[x$month>=12,"year"]<-x[x$month>=12,"year"]+1
+          x[,c("season.date","season")]<-matrix(unlist(
+               lapply(x$month, function(y) {
+                    if(y %in% 9:11) c("11/28","fall")
+                    else if (y %in% c(12,1:2)) c("2/28","winter")
+                    else if (y %in% 3:5) c("5/28","spring") 
+                    else if (y %in% 6:8) c("8/28","summer")})),ncol=2,byrow=T)
+          x$season.date<-as.Date(paste0(x$year,"/",x$season.date))
+          if (return.type=="date")
+               return(x[,"season.date"])  
+          else if (return.type=="season")
+               return(x[,"season"])  
+          else if (return.type=="all")
+               return(as.data.frame(x[,c("season","season.date","year")]) )  
+     }
+     
+     else if ( input.type == "character" ) {
+          if !( "season" %in% names(d) & "year" %in% names(d) )
+               stop( "Must include columns \"year\" and \"season\" ")
+          s <- as.data.frame( rbind( c("11/28","fall"),
+                                     c("2/28","winter"),
+                                     c("5/28","spring"),
+                                     c("8/28","summer") ),
+                              stringsAsFactors=F )
+          names(s) <- c("date.prefix","season")
+                         
+          d2 <- merge( d, s, by="season" )
+          d2$data.char <- apply( d2[,c("year","date.prefix")], MARGIN=1, FUN=function(x) paste(x, sep="", collapse="/") )
+          d$date <- as.Date.character( d2$data.char )     
+          return(d)
+     }
 }
+# to.season<-function(d,return.type="date") {           #,out.fmt="seasons"
+#      x<-data.frame(date=d,year=year(d),month=month(d))  # ,season=time2season(d,out.fmt=out.fmt))  
+#      
+#      x[x$month>=12,"year"]<-x[x$month>=12,"year"]+1
+#      x[,c("season.date","season")]<-matrix(unlist(
+#           lapply(x$month, function(y) {
+#                if(y %in% 9:11) c("11/28","fall")
+#                else if (y %in% c(12,1:2)) c("2/28","winter")
+#                else if (y %in% 3:5) c("5/28","spring") 
+#                else if (y %in% 6:8) c("8/28","summer")})),ncol=2,byrow=T)
+#      x$season.date<-as.Date(paste0(x$year,"/",x$season.date))
+#      if (return.type=="date")
+#           return(x[,"season.date"])  
+#      else if (return.type=="season")
+#           return(x[,"season"])  
+#      else if (return.type=="all")
+#           return(as.data.frame(x[,c("season","season.date","year")]) )  
+# }
 ```
 
 ```{r}

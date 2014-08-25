@@ -61,12 +61,12 @@ weather.retrieve<-function(gages.spatial,
      cat(paste( "Begin reading", nrow(selected.weather.files), "met files...\r" ))
      for (i in 1:nrow(selected.weather.files) ) {
      
-          cat( paste( "  --  loading file", i, "of", nrow(selected.weather.files), "  --  \r" ))
+          print( paste( "  --  loading file", i, "of", nrow(selected.weather.files), "  --  \r" ))
           
           weather.file<-file.path(weather.dir, 
                          selected.weather.files$region[i],
                          selected.weather.files$weather.filename[i])
-          if(file.exists( weather.file ) ) { 
+          if( file.exists(weather.file) ) { 
                #check that file exists.  shouldn't be a problem, 
                #   since polygon cells are generated from file names, but just want to make sure
                

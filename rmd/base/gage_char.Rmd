@@ -6,12 +6,16 @@
 basin.char.retrieve<-function(type="char",
                             basin.impound.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_Impoundments_2014-01-23.RData",
                             basin.char.file="C:/ALR/Models_from_others/Kyle/NH NY NHDplus basin zonal stats KO/NENY_CovariateData_2014-01-23.RData") {
-     if (type == "char")
-          load(basin.char.file)
-     else if (type == "impound")
-          load(basin.impound.file)
+     if (type == "char") {
+          load(basin.char.file) 
+          temp<-get("UpstreamStats")
+     }
      
-     temp<-get("UpstreamStats")
+     else if (type == "impound") {
+          load(basin.impound.file)
+          temp <- get("UpstreamStatsImpounded")
+     }
+     
      return(temp)
 }
 ```
@@ -38,10 +42,10 @@ gage.load.impound<-function(gages.spatial, basin.impound.file=NULL)
      #load Kyle's zonal stats
 #      load(basin.impound.file, verbose = T)
 #      basin.impound<-get(x = "UpstreamStatsImpounded")
-     if (is.null(basin.impound.file))
-          basin.impound<-basin.char.retrieve(type="impound")
-     else
-          basin.impound<-basin.char.retrieve(type="impound",basin.impound.file=basin.impound.file)          
+#      if (is.null(basin.impound.file))
+#           basin.impound<-basin.char.retrieve(type="impound")
+#      else
+     basin.impound<-basin.char.retrieve(type="impound",basin.impound.file=basin.impound.file)          
      
 
      #info on column names and what they represent, from Kyle's zonal stats
@@ -212,10 +216,10 @@ gage.load.char<-function(gages.spatial, basin.char.file=NULL, use.default.cols=F
      #load Kyle's zonal stats
 #      load(basin.char.file)
 #      basin.char<-get("UpstreamStats")
-     if (is.null(basin.char.file))
-          basin.char<-basin.char.retrieve( type="char" )
-     else
-          basin.char<-basin.char.retrieve( type="char", basin.char.file=basin.char.file )
+#      if (is.null(basin.char.file))
+#           basin.char<-basin.char.retrieve( type="char" )
+#      else
+     basin.char<-basin.char.retrieve( type="char", basin.char.file=basin.char.file )
      
      if (use.default.cols){
           basin.char<-basin.char[,c("FEATUREID","Forest","Herbacious","Agriculture",

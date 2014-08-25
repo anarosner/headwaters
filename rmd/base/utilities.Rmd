@@ -81,7 +81,7 @@ capitalize<-function (string)
 
 ```{r}
 merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by, 
-     	by.y=by, all.x=TRUE, suffixes = c(".x",".y"), 
+     	by.y=by, all.x=TRUE, suffixes = c(".x",""), 
 		incomparables = NULL, ...) {
 	if (!('data' %in% slotNames(x)))
 		stop('x has no attributes')
