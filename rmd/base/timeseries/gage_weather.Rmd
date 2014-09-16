@@ -5,7 +5,27 @@
 gage.place.weather.grid<-function(gages.spatial, 
                             plot=F) {
      
+     server.url <- "http://felek.cns.umass.edu:9283"
      
+     if ( !check.cache(cache.dir) )
+          stop("Please run setup.cache function first to create directories for local, cached files")
+     
+     ### download huc file if needed
+     setwd( file.path(cache.dir, "data", "weather_grid"))
+     if ( !("weather_grid_coords.rdata" %in% list.files() && "weather_grid_poly.rdata" %in% list.files()) ) {
+          cat("Downloading weather data location files. (This will be cached locally for future use.)")
+          download.file( paste0(server.url,"/data/weather_grid/weather_grid_coords.rdata"),
+               paste0(cache.dir, "/data/weather_grid/weather_grid_coords.rdata"), 
+               method="wget", quiet=F)
+          download.file( paste0(server.url,"/data/weather_grid/weather_grid_poly.rdata"),
+               paste0(cache.dir, "/data/weather_grid/weather_grid_poly.rdata"), 
+               method="wget", quiet=F)
+     }
+     load("weather_grid_coords.rdata")
+     weather.grid.coords <- get("weather.grid.coords")
+     load("weather_grid_poly.rdata")
+     weather.grid.poly <- get("weather.grid.poly")
+
      #map each gage location to a weather grid cell
      #  and save the file name of the matching weather timeseries
      cat("Mapping gages to weather grid cells...\r")

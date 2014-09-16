@@ -1,0 +1,62 @@
+```{r}
+dir.conditional.create <- function(new.dir, suppress.warning=T) {
+     if ( new.dir %in% list.dirs() ) {    
+          if ( !suppress.warning )
+               warning( paste("Directory", new.dir, "already exists; no duplicate directory created") )
+     }
+     else
+          dir.create( paste0("./",new.dir) )
+}
+```
+
+
+
+```{r}
+
+# "C:/ALR/Models/cache"
+setup.cache <- function(cache.dir) {
+     
+     if ( !is.na(file.info(cache.dir)$isdir) && file.info(cache.dir)$isdir==TRUE ) {
+          #check for write permissions, too?
+          
+          setwd(cache.dir) 
+                              
+          dir.conditional.create("logs")
+          dir.conditional.create("temp")
+          dir.conditional.create("data")
+          setwd("./data")
+               dir.conditional.create("hucs")
+               dir.conditional.create("catchments")
+               dir.conditional.create("weather_grid")
+               dir.conditional.create("weather_data")
+          
+          message("Cache directory creation complete")
+               
+     }
+     
+     else
+          stop("Must specify a valid directory")
+     
+}
+
+
+```
+
+```{r}
+
+check.cache <- function(cache.dir) {
+     
+     data.dir<-file.path(cache.dir,"data")
+     
+     if ( is.na(file.info(cache.dir)$isdir) || file.info(cache.dir)$isdir==FALSE ) 
+          return(FALSE)
+     
+     else if ( is.na(file.info(data.dir)$isdir) || file.info(data.dir)$isdir==FALSE ) 
+          return(FALSE)               
+     
+     else
+          return(TRUE)
+}
+
+```
+
