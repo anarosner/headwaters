@@ -1,0 +1,104 @@
+```{r libraries and projections}
+library(maptools)
+library(rgdal)
+library(rgeos)
+
+proj4 <- "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs"
+processed.dir <- "C:/ALR/Models_processed_data/catchments"
+data.dir <- "C:/ALR/Data"
+
+```
+
+```{r load hucs}
+huc6 <- readShapePoly( file.path(processed.dir,"prep/huc6"), proj4string=CRS(proj4) )
+
+```
+
+```{r}
+huc2 <- c( "01","02","04","05" )
+setwd( file.path(processed.dir, "catchments") )
+
+```
+
+
+```{r loops}
+
+
+for ( i in huc2 ) {
+     
+     print(paste0("  --  HUC2 ", i, "  --  "))
+     
+     #read in catchments file corresponding to current huc2
+     catchments.loop1 <- readShapePoly( file.path(data.dir,
+                                                "StreamData/NHDplus/NHDPlusCatchment", 
+                                                i,"Catchment"), proj4string=CRS(proj4))
+
+     #create points layer from centroids of catchments to use for over function
+     centroids.loop1 <- SpatialPointsDataFrame( 
+                         gCentroid( catchments.loop1, byid=TRUE ),
+                         catchments.loop1@data )
+
+     #select huc6 polygons that are within the current huc2
+     huc6.loop1 <- huc6[ substr( huc6$HUC6, start=1, stop=2 )==i, ]
+     print(nrow(huc6.loop1))
+
+
+     #loop through huc6s
+     for ( j in 1:nrow( huc6.loop1 ) ) {     
+
+          print(paste0("      -  HUC6 ", huc6.loop1$HUC6[j], "  -  "))
+          
+          #create polygon of current huc6
+          #      (because over method requires spatialpolygon not spatialpolygondataframe...)
+          huc6.loop2 <- SpatialPolygons( huc6.loop1[j,]@polygons, 
+                                          proj4string=huc6.loop1@proj4string )
+          
+          #find all catchments whose centroid falls in current huc6
+          centroids.loop2 <- over( centroids.loop1, huc6.loop2 )
+          ids <- centroids.loop1$FEATUREID[ !is.na( centroids.loop2) ]
+          
+          if ( length(ids)==0 )
+               print(paste("..No catchments for huc", huc6.loop1$HUC6[j] ))
+          else {
+          
+               #create subset of catchments for that huc6
+
+               catchments <- catchments.loop1[ catchments.loop1$FEATUREID %in% ids, ]
+
+               # save and cleanup
+               save( catchments, file=paste0( huc6.loop1$HUC6[j], ".rdata") )
+               rm(huc6.loop2, centroids.loop2, ids, catchments)
+     
+          }
+     }
+
+     rm( catchments.loop1, centroids.loop1, huc6.loop1 )
+
+}
+
+
+```
+
+
+```{r }
+
+setwd( file.path(processed.dir, "hucs") )
+
+huc6 <- spChFIDs( huc6, as.character(huc6$HUC6) )
+huc6 <- SpatialPolygons( huc6@polygons, proj4string=huc6@proj4string )
+save( huc6, file="hucs.rdata") 
+
+
+```
+
+```{r}
+load("C:/ALR/Models/headwaters/data/weather_grid_coords.Rdata", verbose=T)
+load("C:/ALR/Models/headwaters/data/weather_grid_poly.Rdata", verbose=T)
+```
+
+```{r}
+plot(states.poly)
+plot(weather.grid.poly, add=T, border="blue")
+plot(huc6, add=T, border="red")
+```
+

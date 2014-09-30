@@ -1,0 +1,186 @@
+```{r}
+#' @title Create template of dates 
+#' @description Create template of dates to mark each period for both flow and weather data
+# no export
+
+create.template.date<-function (start.year=1949, end.year=2010) {
+     # set up data frames for loading mauer historic weather data
+     #(using flow data since 1949 only, even though there are some records back to the 30s, because Mauer met data only available starting 1950)
+     
+     #create sequences of dates
+     template.date<-list(daily=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/1/1")), 
+                                       as.Date(paste0(end.year,"/12/31")), "days")),stringsAsFactors=F),
+                         monthly=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/1/1")), 
+                                       as.Date(paste0(end.year,"/12/1")), "months")),stringsAsFactors=F),  
+                                   #first date of month
+                         seasonal=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/02/28")), 
+                                       as.Date(paste0(end.year+1,"/2/28")), "3 month")),stringsAsFactors=F), 
+                                   #LAST date of season (so the year of winter is the same as following spring)
+                         annual=data.frame(date=as.character(
+                                    seq(as.Date(paste0(start.year,"/09/30")), 
+                                        as.Date(paste0(end.year+1,"/9/30")), "years")),stringsAsFactors=F)  ) 
+                                    #LAST date of year 
+                                    #(so the date of oct-dec months is the same as following jan-sept months)
+     return(template.date)
+}
+
+# create.template.date<-function () {
+#      # set up data frames for loading mauer historic weather data
+#      #(using flow data since 1949 only, even though there are some records back to the 30s, because Mauer met data only available starting 1950)
+#      
+#      #create sequences of dates
+#      template.date<-list(daily=data.frame(date=as.character(
+#                                    seq(as.Date("1949/1/1"), as.Date("2010/12/31"), "days")),stringsAsFactors=F),
+#                          monthly=data.frame(date=as.character(
+#                                    seq(as.Date("1949/1/1"), as.Date("2010/12/1"), "months")),stringsAsFactors=F),  
+#                                    #first date of month
+#                          seasonal=data.frame(date=as.character(
+#                                    seq(as.Date("1949/02/28"), as.Date("2011/2/28"), "3 month")),stringsAsFactors=F), 
+#                                    #LAST date of season (so the year of winter is the same as following spring)
+#                          annual=data.frame(date=as.character(
+#                                     seq(as.Date("1949/09/30"), as.Date("2011/9/30"), "years")),stringsAsFactors=F)  ) 
+#                                     #LAST date of year 
+#                                     #(so the date of oct-dec months is the same as following jan-sept months)
+#      return(template.date)
+# }
+
+```
+
+
+
+```{r}
+#' @title define periods
+#' @description if we want to add different period (i.e. bkt bioperiod), can do it here
+# no export
+create.template.periods<-function() {
+     template.period<-data.frame(name=c("daily",  "monthly",   "seasonal",    "annual"), min.records=c(1,25,80,345), stringsAsFactors = F)
+     row.names(template.period)<-template.period$name
+     return( template.period )
+}
+
+#' @title names of seasons
+#' @description yep, that's all for now
+# no export
+
+create.template.season<-function() {
+     template.season<-c("winter","spring","summer","fall")
+     return(template.season)
+}
+
+```
+
+
+```{r}
+#' @title col names for flow stats
+#' @description col names for flow stats
+#' @export
+#stats to save from flow
+create.cols.flow<-function() {
+   cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
+   return(cols.flow)   
+} 
+
+
+#' @title col names for weather metrics
+#' @description col names for our processed/saved weather metrics
+#' @export
+
+#precip_mm  tmax  tmin
+create.cols.weather<-function() {
+     cols.weather<-c("precip.total","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+                     "tmin","tmax","tavg",
+                     "pet","pet.lag1","pet.lag2","gdd","gdd.lag1","gdd.lag2",
+                     "frozen","melt.doy","melt.doy.lag1","melt.doy.lag2")
+#      cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+#                      "tmin","tmax","tavg","pet","gdd","frozen","melt.doy")
+     return(cols.weather)
+}
+
+```
+
+```{r}
+#' @title create the monster list of 3-d matrices for flow
+#' @description used to store aggregated flow data
+# no export
+
+create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "seasonal",    "annual"), 
+                          template.date=NULL) { #, cols.flow=NULL
+     
+     if (is.null(template.date))
+          template.date<-create.template.date()
+#      if (is.null(cols.flow))
+     cols.flow<-create.cols.flow()
+     template.period<-create.template.periods()
+
+     #create list the length of all periods
+     #   but only create matrices for the periods specified
+     #   this is so the index in the list for period x is consistent no matter how many periods are specified
+     q.matrices<-list() #nrow(template.period)
+     for (j in periods) {
+#           print(j)
+          i<-which(template.period$name==j)
+          q.matrices[[i]]<-array(dim=c(   nrow(template.date[[j]]), 
+                                          length(gages.spatial$site_no), 
+                                          length(cols.flow))  ) 
+          dimnames(   q.matrices[[i]]   )[[1]]<-template.date[[j]][,1]
+          dimnames(   q.matrices[[i]]    )[[2]]<-gages.spatial$site_no
+          dimnames(   q.matrices[[i]]   )[[3]]<-cols.flow
+     }
+     q.matrices[[ ( length(template.period$name)+1 ) ]]<-NA
+     names(q.matrices)<-c(template.period$name,"records")
+     return(q.matrices)
+}
+
+```
+
+
+```{r}
+#' @title Create monster list of 3d weather matrices
+#' @description used to store aggregated weather metrics
+# no export
+
+create.w.matrices<-function( weather.filenames, periods=c("daily", "monthly", "seasonal", "annual") ) {
+                                                                 #template.date=NULL
+#      if (!("weather.filename" %in% names(gages.spatial)))
+#           stop("Must provide gages.spatial object that has been assigned weather.filename")
+#      
+#      if (is.null(template.date))
+     template.date<-create.template.date()
+     template.period<-create.template.periods()
+     cols.weather<-create.cols.weather()
+     
+     w.matrices<-list()
+     for ( j in template.period$name ) {
+          if ( j %in% periods ) {
+               w.matrices[[j]]<-array(dim=c(  nrow(template.date[[j]]), 
+                                         length(weather.filenames), 
+                                         length(cols.weather))  ) 
+               dimnames(   w.matrices[[j]]   )[[1]]<-template.date[[j]][,1]
+               dimnames(   w.matrices[[j]]    )[[2]]<-weather.filenames
+               dimnames(   w.matrices[[j]]   )[[3]]<-cols.weather
+          }
+          else 
+               w.matrices[[j]] <- NA
+     }
+          
+#      for (j in periods) {
+# #           print(j)
+#           i<-which(template.period$name==j)
+#           w.matrices[[i]]<-array(dim=c(  nrow(template.date[[j]]), 
+#                                          length(weather.filenames), 
+#                                          length(cols.weather))  ) 
+#           dimnames(   w.matrices[[i]]   )[[1]]<-template.date[[j]][,1]
+#           dimnames(   w.matrices[[i]]    )[[2]]<-weather.filenames
+#           dimnames(   w.matrices[[i]]   )[[3]]<-cols.weather
+#      }
+#      names(w.matrices)<-template.period$name
+     return(w.matrices)
+}
+
+
+
+```
+

@@ -1,0 +1,32 @@
+```{r libraries and projections}
+library(maptools)
+library(rgdal)
+library(rgeos)
+
+proj4 <- "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs"
+catchments.dir <- "C:/ALR/Models_processed_data/catchments"
+
+```
+
+```{r load hucs}
+huc6 <- readShapePoly( file.path(catchments.dir,"prep/huc6"), proj4string=CRS(proj4) )
+```
+
+
+```{r }
+
+
+g <- #gage spatialpolygonsdataframe
+
+     # spatialpolygons object
+     load( huc6, file="hucs.rdata") )
+
+     match <- over( g, huc6 )
+     huc6.selected <- huc6$HUC6[ !is.na( match )  ]
+     huc6.selected <- huc6$HUC6[ match==1 ]
+
+     
+     load( catchments, file=paste0( huc6.selected, ".rdata") )
+
+
+```

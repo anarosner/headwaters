@@ -1,7 +1,12 @@
 ```{r}
-dir.conditional.create <- function(new.dir, suppress.warning=T) {
+#' @title internal function to create directory if it doesn't already exist
+#' @param new.dir \code{character}  character of new directory names
+#' @param quiet \code{boolean}  whether to suppress messages
+# no export
+
+dir.conditional.create <- function(new.dir, quiet=T) {
      if ( new.dir %in% list.dirs() ) {    
-          if ( !suppress.warning )
+          if ( !quiet )
                warning( paste("Directory", new.dir, "already exists; no duplicate directory created") )
      }
      else
@@ -12,9 +17,13 @@ dir.conditional.create <- function(new.dir, suppress.warning=T) {
 
 
 ```{r}
+#' @title Sets up directory structure for cache and temporary files
+#' @description Creates directories with locations for cached catchment polygons, weather polygons, and weather data; log files; and temporary local storage
+#' @param  cache.dir \code{character} file path of cache directory location
+#' @param  quiet \code{should messages be suppressed}
+#' @export
 
-# "C:/ALR/Models/cache"
-setup.cache <- function(cache.dir) {
+cache.setup <- function(cache.dir, quiet=F) {
      
      if ( !is.na(file.info(cache.dir)$isdir) && file.info(cache.dir)$isdir==TRUE ) {
           #check for write permissions, too?
@@ -29,8 +38,10 @@ setup.cache <- function(cache.dir) {
                dir.conditional.create("catchments")
                dir.conditional.create("weather_grid")
                dir.conditional.create("weather_data")
+               dir.conditional.create("basin_char")
           
-          message("Cache directory creation complete")
+          if ( !quiet )
+               message("Cache directory creation complete")
                
      }
      
@@ -43,8 +54,12 @@ setup.cache <- function(cache.dir) {
 ```
 
 ```{r}
+#' @title Checks that cache exist and contains all necessary subfolders
+#' @param cache.dir \code{character}  character of cache directory location
+#' @return \code{boolean}
+# no export
 
-check.cache <- function(cache.dir) {
+cache.check.dir <- function(cache.dir) {
      
      data.dir<-file.path(cache.dir,"data")
      
@@ -56,6 +71,36 @@ check.cache <- function(cache.dir) {
      
      else
           return(TRUE)
+}
+
+```
+
+```{r}
+#' @title Sets the cache directory location
+#' @description Sets the cache directory location.  Also checks that the directory conrtains all necessary subdirectories
+#' @param cache.dir \code{character}  file path of cache directory location
+#' @export
+
+cache.set <- function( cache.dir ) {
+     if ( cache.check.dir( cache.dir ) == TRUE )
+          assign( "cache.dir.global", value=cache.dir, envir=.GlobalEnv )
+     else 
+          stop("Cache directory is missing needed file structure.  Please re-run cache.setup()")
+}
+```
+
+```{r}
+#' @title Check that the cache directory location has been set
+#' @description Checks that the cache directory location has been set.  Also checks that the directory contains all necessary subdirectories
+# no export
+
+cache.check <- function() {
+     if ( !exists( "cache.dir.global", envir=.GlobalEnv ) ) 
+          stop("Cannot find cache directory.  Please run cache.set() function.  If you haven't ever set up a cache directory, run cache.setup() function first.") 
+     
+     cache.dir <- get( "cache.dir.global", envir=.GlobalEnv )
+     if ( cache.check.dir( cache.dir ) )
+          stop("Cache directory is missing needed file structure.  Please re-run cache.setup()")     
 }
 
 ```

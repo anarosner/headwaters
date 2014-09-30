@@ -8,7 +8,8 @@
 #' @param   \code{} 
 #' @param   \code{} 
 #' @return  \code{}
-#' @seealso \code{\link{}}, \code{\link{}}
+#' @seealso \code{\link{headwaters::}}, \code{\link{headwaters::}}
+#' @export
 
 
 #' @title do_stuff
