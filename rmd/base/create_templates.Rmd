@@ -1,0 +1,77 @@
+```{r}
+#' @title Create template of dates 
+#' @description Create template of dates to mark each period for both flow and weather data
+# no export
+
+create.template.date<-function (start.year=1949, end.year=2010) {
+     # set up data frames for loading mauer historic weather data
+     #(using flow data since 1949 only, even though there are some records back to the 30s, because Mauer met data only available starting 1950)
+     
+     #create sequences of dates
+     template.date<-list(daily=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/1/1")), 
+                                       as.Date(paste0(end.year,"/12/31")), "days")),stringsAsFactors=F),
+                         monthly=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/1/1")), 
+                                       as.Date(paste0(end.year,"/12/1")), "months")),stringsAsFactors=F),  
+                                   #first date of month
+                         seasonal=data.frame(date=as.character(
+                                   seq(as.Date(paste0(start.year,"/02/28")), 
+                                       as.Date(paste0(end.year+1,"/2/28")), "3 month")),stringsAsFactors=F), 
+                                   #LAST date of season (so the year of winter is the same as following spring)
+                         annual=data.frame(date=as.character(
+                                    seq(as.Date(paste0(start.year,"/09/30")), 
+                                        as.Date(paste0(end.year+1,"/9/30")), "years")),stringsAsFactors=F)  ) 
+                                    #LAST date of year 
+                                    #(so the date of oct-dec months is the same as following jan-sept months)
+     return(template.date)
+}
+
+# create.template.date<-function () {
+#      # set up data frames for loading mauer historic weather data
+#      #(using flow data since 1949 only, even though there are some records back to the 30s, because Mauer met data only available starting 1950)
+#      
+#      #create sequences of dates
+#      template.date<-list(daily=data.frame(date=as.character(
+#                                    seq(as.Date("1949/1/1"), as.Date("2010/12/31"), "days")),stringsAsFactors=F),
+#                          monthly=data.frame(date=as.character(
+#                                    seq(as.Date("1949/1/1"), as.Date("2010/12/1"), "months")),stringsAsFactors=F),  
+#                                    #first date of month
+#                          seasonal=data.frame(date=as.character(
+#                                    seq(as.Date("1949/02/28"), as.Date("2011/2/28"), "3 month")),stringsAsFactors=F), 
+#                                    #LAST date of season (so the year of winter is the same as following spring)
+#                          annual=data.frame(date=as.character(
+#                                     seq(as.Date("1949/09/30"), as.Date("2011/9/30"), "years")),stringsAsFactors=F)  ) 
+#                                     #LAST date of year 
+#                                     #(so the date of oct-dec months is the same as following jan-sept months)
+#      return(template.date)
+# }
+
+```
+
+
+
+```{r}
+#' @title define periods
+#' @description if we want to add different period (i.e. bkt bioperiod), can do it here
+# no export
+create.template.periods<-function() {
+     template.period<-data.frame(name=c("daily",  "monthly",   "seasonal",    "annual"), min.records=c(1,25,80,345), stringsAsFactors = F)
+     row.names(template.period)<-template.period$name
+     return( template.period )
+}
+```
+
+```{r}
+#' @title names of seasons
+#' @description yep, that's all for now
+# no export
+
+create.template.season<-function() {
+     template.season<-c("winter","spring","summer","fall")
+     return(template.season)
+}
+
+```
+
+
