@@ -1,34 +1,57 @@
+```{r}
+# ALR
+# arosner@usgs.gov, ana@alumni.tufts.edu
+# 9/17/2014
+
+```
+
+
 ```{r libraries and projections}
 library(maptools)
 library(rgdal)
 library(rgeos)
 
 proj4 <- "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs"
-processed.dir <- "C:/ALR/Models_processed_data/catchments"
+
+#location of catchment and huc files
 data.dir <- "C:/ALR/Data"
+
+#where to save data
+processed.dir <- "C:/ALR/Models_processed_data/catchments"
+
 
 ```
 
 ```{r load hucs}
+#read in national file of huc6s
 huc6 <- readShapePoly( file.path(processed.dir,"prep/huc6"), proj4string=CRS(proj4) )
 
 ```
 
 ```{r}
+#the list of NHDplus file sets/huc2's that I'll be working through
 huc2 <- c( "01","02","04","05" )
-setwd( file.path(processed.dir, "catchments") )
+# this includes new england, mid-atlantic, great lakes, and ohio r
 
 ```
 
 
 ```{r loops}
 
+setwd( file.path(processed.dir, "catchments") )
 
 for ( i in huc2 ) {
      
      print(paste0("  --  HUC2 ", i, "  --  "))
      
-     #read in catchments file corresponding to current huc2
+     #select huc6 polygons that are within the current huc2
+     huc6.loop1 <- huc6[ substr( huc6$HUC6, start=1, stop=2 )==i, ]
+     print(nrow(huc6.loop1))
+
+     
+     #read in NHDplus catchments file 
+     # corresponding to current huc2 for this loop
+     # this takes a little while...
      catchments.loop1 <- readShapePoly( file.path(data.dir,
                                                 "StreamData/NHDplus/NHDPlusCatchment", 
                                                 i,"Catchment"), proj4string=CRS(proj4))
@@ -38,9 +61,6 @@ for ( i in huc2 ) {
                          gCentroid( catchments.loop1, byid=TRUE ),
                          catchments.loop1@data )
 
-     #select huc6 polygons that are within the current huc2
-     huc6.loop1 <- huc6[ substr( huc6$HUC6, start=1, stop=2 )==i, ]
-     print(nrow(huc6.loop1))
 
 
      #loop through huc6s
@@ -48,7 +68,7 @@ for ( i in huc2 ) {
 
           print(paste0("      -  HUC6 ", huc6.loop1$HUC6[j], "  -  "))
           
-          #create polygon of current huc6
+          #create spatial polygon of current huc6
           #      (because over method requires spatialpolygon not spatialpolygondataframe...)
           huc6.loop2 <- SpatialPolygons( huc6.loop1[j,]@polygons, 
                                           proj4string=huc6.loop1@proj4string )
@@ -82,6 +102,8 @@ for ( i in huc2 ) {
 
 ```{r }
 
+#reformat and save as rdata file
+
 setwd( file.path(processed.dir, "hucs") )
 
 huc6 <- spChFIDs( huc6, as.character(huc6$HUC6) )
@@ -92,13 +114,13 @@ save( huc6, file="hucs.rdata")
 ```
 
 ```{r}
-load("C:/ALR/Models/headwaters/data/weather_grid_coords.Rdata", verbose=T)
-load("C:/ALR/Models/headwaters/data/weather_grid_poly.Rdata", verbose=T)
+# load("C:/ALR/Models/headwaters/data/weather_grid_coords.Rdata", verbose=T)
+# load("C:/ALR/Models/headwaters/data/weather_grid_poly.Rdata", verbose=T)
 ```
 
 ```{r}
-plot(states.poly)
-plot(weather.grid.poly, add=T, border="blue")
-plot(huc6, add=T, border="red")
+# plot(states.poly)
+# plot(weather.grid.poly, add=T, border="blue")
+# plot(huc6, add=T, border="red")
 ```
 
