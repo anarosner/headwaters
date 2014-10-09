@@ -1,5 +1,7 @@
 
 ## ----voronoi function----------------------------------------------------
+#' @title voronoi polygons
+#' @export
 #voronoi function by Carson Farmer
 #http://www.carsonfarmer.com/2009/09/voronoi-polygons-with-r/
 # To create a nice bounded Voronoi polygons tessellation of a point layer in R, we need two libraries: sp and deldir. 
@@ -38,6 +40,9 @@ voronoipolygons = function(layer) {
 
 
 ## ------------------------------------------------------------------------
+#' @title create weather grid
+#' @export
+
 weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
                               regions=c("east"), 
                               proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
@@ -46,7 +51,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
      weather.filenames<-as.data.frame( matrix( ncol=2, nrow=0 ) )
      names(weather.filenames)<-c("weather.filename", "region")
      for (i in regions) {
-          cat( paste( "Retrieving grid centroids for region", i, "from file names...\r" ) )
+          cat( paste( "Retrieving grid centroids for region", i, "from file names...\n" ) )
           setwd( file.path( weather.dir, i ) )
           temp.files<-list.files()
           weather.filenames[ (nrow(weather.filenames)+1):(nrow(weather.filenames)+length(temp.files)),]<-
@@ -62,7 +67,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 #      grid.y<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,6,12 ) )
 #      grid.x<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,14,21 ) )
 
-     cat("Creating spatial object of grid centroids...\r")
+     cat("Creating spatial object of grid centroids...\n")
      grid.points<-SpatialPointsDataFrame(coords=weather.filenames[ , c("x","y") ],
                                              data=weather.filenames,
                                              proj4string=CRS( proj4 ) )
@@ -70,8 +75,8 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
      #                                              data=weather.filenames,
      #                                              proj4string=CRS( proj4 ) )
           
-     cat("Creating Voronoi polygons around grid centroids...\r")
-     cat("    (this part could take a while)    \r")
+     cat("Creating Voronoi polygons around grid centroids...\n")
+     cat("    (this part could take a while)    \n")
      weather.grid.poly<-voronoipolygons(grid.points)
 #      weather.grid.poly@data<-weather.grid.poly@data[,c(3,1,2)]
      
@@ -92,64 +97,26 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 
 
 ## ------------------------------------------------------------------------
-weather.grid.load<-function( weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid", 
-                             proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
- 
-     weather.grid.poly<-readShapePoly(weather.grid.file,proj4string=CRS(proj4))
-     return(weather.grid.poly)
-}
+# #' @title load weather grid
+# #' @export
+# weather.grid.load<-function( weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid", 
+#                              proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
+#  
+#      weather.grid.poly<-readShapePoly(weather.grid.file,proj4string=CRS(proj4))
+#      return(weather.grid.poly)
+# }
 
 
 ## ------------------------------------------------------------------------
-weather.grid.coords.load<-function( weather.grid.poly=NULL,
-                                    weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid",
-                                    proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
-     if ( is.null(weather.grid.poly) )
-          weather.grid.poly <- weather.grid.load( weather.grid.file, proj4 )
-     weather.grid.coords<-weather.grid.poly@data
-     
-     return( weather.grid.coords )
-}
-
-
-## ------------------------------------------------------------------------
-#' @title col names for weather input data
-#' @description col names for mauer weather data.  original inputs do not have column headers
-#columns from mauer
-create.cols.mauer<-function() {
-     cols.mauer<-c("year", "month", "day","precip.mm", "tmax","tmin","wind")
-     return(cols.mauer)
-}
-
-
-
-## ------------------------------------------------------------------------
-#' @title Create template of dates in mauer weather data
-#' @description mauer dates
-create.template.weather<-function(mauer.dir="C:/ALR/Data/ClimateData/Mauer/daily/east") {
-     #***take a look at this later. i can't remember why this is necessary, instead of just using create.template.mauer
-     #maybe replace later
-     
-     cols.mauer<-create.cols.mauer()
-     
-     setwd(mauer.dir)
-# 
-     #get dimensions for 3-d array, date, and calculate month/season/annual date columns
-     template.weather<-read.table(file=list.files()[1],col.names=cols.mauer)
-     
-     template.weather$date<-apply(template.weather[,1:3],MARGIN=1,FUN=function(d) (paste(d,collapse="-")))
-     template.weather$date<-as.Date(template.weather$date)
-     
-     #eventually change this to automatically retrieve periods, fetch functions that assign date for that period, and assign date
-     template.weather$daily<-as.character(template.weather$date)
-     template.weather$monthly<-as.character( to.month(template.weather$date) )
-     template.weather$seasonal<-as.character( to.season(template.weather$date) )
-     template.weather$annual<-as.character( to.water.year(template.weather$date) )
-
-     period.names<-create.template.periods()$name
-     template.weather<-template.weather[,c("date",period.names)]
-     
-     return(template.weather)
-}
-
+# #' @title load weather grids coords only
+# #' @export
+# weather.grid.coords.load<-function( weather.grid.poly=NULL,
+#                                     weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid",
+#                                     proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
+#      if ( is.null(weather.grid.poly) )
+#           weather.grid.poly <- weather.grid.load( weather.grid.file, proj4 )
+#      weather.grid.coords<-weather.grid.poly@data
+#      
+#      return( weather.grid.coords )
+# }
 

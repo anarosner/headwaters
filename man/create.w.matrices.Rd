@@ -4,7 +4,7 @@
 \title{Create monster list of 3d weather matrices}
 \usage{
 create.w.matrices(weather.filenames, periods = c("daily", "monthly",
-  "seasonal", "annual"))
+  "seasonal", "annual"), template.date, template.period, cols.weather)
 }
 \description{
 used to store aggregated weather metrics

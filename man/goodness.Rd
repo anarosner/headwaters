@@ -3,7 +3,7 @@
 \alias{goodness}
 \title{Some goodness of fit, validation metrics}
 \usage{
-goodness(df = NULL, obs = NULL, pred = NULL)
+goodness(obs.real = NULL, pred.log = NULL, bias.correction = NULL)
 }
 \arguments{
 \item{obs}{\code{numeric vector} observed values}

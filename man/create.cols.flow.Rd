@@ -3,7 +3,7 @@
 \alias{create.cols.flow}
 \title{col names for flow stats}
 \usage{
-create.cols.flow()
+create.cols.flow(agg.function.flow = (conteStreamflow::agg.function.flow))
 }
 \description{
 col names for flow stats

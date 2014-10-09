@@ -1,11 +1,15 @@
 ```{r}
 #' @title Create template of dates 
 #' @description Create template of dates to mark each period for both flow and weather data
-# no export
+#' @export
 
 create.template.date<-function (start.year=1949, end.year=2010) {
      # set up data frames for loading mauer historic weather data
-     #(using flow data since 1949 only, even though there are some records back to the 30s, because Mauer met data only available starting 1950)
+     #(using flow data since 1949 only, even though there are some records back to the 30s, 
+     #because Mauer met data only available starting 1950)
+     
+     #the four periods here are hard-coded in
+     #  in order to add different periods, need to create new function to create date templates
      
      #create sequences of dates
      template.date<-list(daily=data.frame(date=as.character(
@@ -54,23 +58,26 @@ create.template.date<-function (start.year=1949, end.year=2010) {
 ```{r}
 #' @title define periods
 #' @description if we want to add different period (i.e. bkt bioperiod), can do it here
-# no export
+#' @export
 create.template.periods<-function() {
-     template.period<-data.frame(name=c("daily",  "monthly",   "seasonal",    "annual"), min.records=c(1,25,80,345), stringsAsFactors = F)
+     template.period<-data.frame(name=c(        "daily",  "monthly",   "seasonal",    "annual"), 
+                                 min.records=c( 1,        25,          80,            345), 
+                                 stringsAsFactors = F)
      row.names(template.period)<-template.period$name
      return( template.period )
+#      assign( "template.period", value=template.period, envir=.GlobalEnv )
 }
 ```
 
 ```{r}
-#' @title names of seasons
-#' @description yep, that's all for now
-# no export
-
-create.template.season<-function() {
-     template.season<-c("winter","spring","summer","fall")
-     return(template.season)
-}
+# #' @title names of seasons
+# #' @description yep, that's all for now
+# # no export
+# 
+# create.template.season<-function() {
+#      template.season<-c("winter","spring","summer","fall")
+#      return(template.season)
+# }
 
 ```
 

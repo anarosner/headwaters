@@ -24,15 +24,17 @@ gage.retrieve<-function( buffer.file=NULL,
                          proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs") {
 #                          temp.dir="C:/ALR/Models_processed_data/flow_timeseries", ,log.dir=NULL
 #                          ) {     
+     cache.check()
                          
      if ( sum( !is.null(buffer.file), !is.null(sites), !is.null(states)) != 1 )
           stop("Must provide one and only one of method of selecting gages; either specify buffer shapefile, list of sites, or list of states.")
      
-     if ( !check.cache(cache.dir) )
-          stop("Please run setup.cache function first to create directories for local, cached files")
+     #      if ( !cache.check() )
+#           stop("Please run setup.cache function first to create directories for local, cached files")
 
      if(!is.null(buffer.file)) {
           buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
+          cache.load.data( object="states.poly",file="states.rdata", dir="general_spatial" )
           match<-gIntersects(states.poly,buffer, byid=T)
 #           states<-states.spatial$STATE_ABB[match]
           states<-states.poly$STUSPS[match]
@@ -94,7 +96,7 @@ gage.retrieve<-function( buffer.file=NULL,
 
      #save metadata from raw nwis file 
 #      if (!is.null(log.dir)) {    
-          save.log( text=raw[1:(line-1)], dir=file.path(cache.dir,"logs"), filename="gages_meta", ext="txt" )
+          save.log( text=raw[1:(line-1)], filename="gages_meta", ext="txt" )
 #           writeLines(raw[1:(line-1)],"gages_meta.txt")
           # [13] "#  agency_cd       -- Agency"                                              
           # [14] "#  site_no         -- Site identification number"                          
@@ -140,7 +142,7 @@ gage.retrieve<-function( buffer.file=NULL,
      cat(paste("(Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " square km)" ))
 
 
-     gages.spatial<-gage.place.spatial(gages.df = gages.subset)
+     gages.spatial<-gage.place(gages.df = gages.subset)
      if(!is.null(buffer.file)) 
           gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
 
@@ -165,7 +167,7 @@ gage.retrieve<-function( buffer.file=NULL,
 #' @param plot \code{boolean}  if true, will plot a map of gages with state outlines
 #' @return \code{SpatialPointsDataFrame}
 #' @keywords gage, SpatialPointsDataFrame
-#' @seealso \code{\link{headwaters::gage.retrieve}}
+#' @seealso \code{\link{conteStreamflow::gage.retrieve}}
 #' @export
 
 gage.place<-function(gages.df, 
@@ -216,7 +218,7 @@ gage.place<-function(gages.df,
 #' @param message \code{boolean} if true, will display a message indicating how many gages were removed
 #' @return SpatialPointsDataFrame
 #' @keywords gage, SpatialPointsDataFrame
-#' @seealso \code{\link{headwaters::gage.retrieve}}
+#' @seealso \code{\link{conteStreamflow::gage.retrieve}}
 #' @export
 
 
@@ -274,25 +276,31 @@ gage.buffer<-function(gages.spatial, plot=F,
 #' @param cache.dir \code{character} local directory where spatial data files can be cached
 #' @return \code{SpatialPointsDataFrame}
 #' @keywords gage, NHDplus
-#' @seealso \code{\link{headwaters::gages.retrieve}}
+#' @seealso \code{\link{conteStreamflow::gages.retrieve}}
 #' @export
 
-gage.place.nhdplus<-function(gages.spatial, cache.dir, server.url="http://felek.cns.umass.edu:9283") {
+gage.place.nhdplus<-function(gages.spatial) {
+     #, cache.dir ) #, server.url="http://felek.cns.umass.edu:9283") {
      
      #      server.url <- "http://felek.cns.umass.edu:9283"
      
-     if ( !check.cache(cache.dir) )
-          stop("Please run setup.cache function first to create directories for local, cached files")
+#      if ( !check.cache() )
+#           stop("Please run setup.cache function first to create directories for local, cached files")
+#      
+     cache.check()
      
      ### download huc file if needed
-     setwd( file.path(cache.dir, "data", "hucs"))
-     if ( !("hucs.rdata" %in% list.files() ) ) {
-          cat("Downloading regional spatial data files. (This will be cached locally for future use.)")
-          download.file( paste0(server.url,"/data/hucs/hucs.rdata"),
-               paste0(cache.dir, "/data/hucs/hucs.rdata"), 
-               method="wget", quiet=F)
-#           load( url(paste0(server.url,"/data/hucs/hucs.rdata")) )
-     }
+     cache.load.data( object="huc6", file="hucs.rdata", dir="hucs", 
+                      message="Downloading regional spatial data files.  This may take a while. (Files will be cached locally for future use.)", quiet=F)
+#      assign( "huc6", value=huc6 )
+#      setwd( file.path(cache.dir, "data", "hucs"))
+#      if ( !("hucs.rdata" %in% list.files() ) ) {
+#           cat("Downloading regional spatial data files. (This will be cached locally for future use.)")
+#           download.file( paste0(server.url,"/data/hucs/hucs.rdata"),
+#                paste0(cache.dir, "/data/hucs/hucs.rdata"), 
+#                method="wget", quiet=F)
+# #           load( url(paste0(server.url,"/data/hucs/hucs.rdata")) )
+#      }
      
      #spatial query huc to determine which catchment files are needed
      g <- gages.spatial
@@ -333,13 +341,49 @@ gage.place.nhdplus<-function(gages.spatial, cache.dir, server.url="http://felek.
      cat("\nCompleted plotting gages to catchments")
 
      if ( sum(is.na(g$FEATUREID))>0 ) {
-          warning(paste(sum(is.na(g$FEATUREID)), "gages did not map to a NHDplus catchment:"))
-          warning(paste(g@data[is.na(g$FEATUREID),"site_no"], collapse="; " ))     
+          warning(paste(  sum(is.na(g$FEATUREID)), "gages did not map to a NHDplus catchment:",
+                          paste(g@data[is.na(g$FEATUREID),"site_no"], collapse="; " )  ))     
      }
           
      gages.spatial <- g[,-which(names(g)=="huc")]
      return(gages.spatial)
 
+}
+
+```
+
+
+```{r gage export}
+#' @title Export shapefile of gage information
+#' @export
+# eventually move into a generic function for exporting shapefiles, make gage.export a wrapper function
+
+gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStreamflow" ) {
+          
+          setwd(shapefile.dir)
+          if ( filename %in% list.files() )
+               stop( paste0("A shapefile with the name \"", filename, "\" already exists in this directory. Please specify a unique filename.") )
+          
+          orig <- names( gages.spatial )
+          names( gages.spatial ) <- gsub( pattern="[[:punct:]]", replacement="_", x=names( gages.spatial) )
+          x<-names(gages.spatial)[ nchar(names(gages.spatial)) >10 ]
+          k<-1
+          for ( i in 1:length(x) ) {
+               a <- substr( x[i], 1, 1 )
+               b <- substr( x[i], 2, nchar(x[i]) )
+               for ( j in c("a","e","i","o","u") )
+                    b<-gsub( pattern=j, replacement="", x=b )
+               x[i] <- paste0( a, b, collapse="" )
+               if ( nchar(x[i])>10 ) {
+                    x[i] <- substr( x[i], 1, 8 )
+                    x[i] <- paste0( x[i], k, collapse="" )
+                    k <- k+1
+               }
+          }
+          x
+          names(gages.spatial)[ nchar(names(gages.spatial)) >10 ] <- x
+          writeOGR( gages.spatial,  ".", layer=filename, driver="ESRI Shapefile" )
+          write.csv( data.frame( orig_names=orig, esri_names=names(gages.spatial) ), file=paste0(filename,"_col_names.csv"), row.names=F )
 }
 
 ```

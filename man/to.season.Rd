@@ -3,7 +3,7 @@
 \alias{to.season}
 \title{Associate calendar dates either a date or string representing its season.}
 \usage{
-to.season(d, return.type = "date")
+to.season(d, return.type = "date", input.type = "date")
 }
 \arguments{
 \item{d}{\code{date} vector of dates}
@@ -20,7 +20,7 @@ see above
 Given a date, determines which season it falls into, and assigns it either a string of the season name,
 }
 \seealso{
-\code{\link{to.water.year}}, \code{\link{to.month}}
+\code{\link{conteStreamflow::to.water.year}}, \code{\link{conteStreamflow::to.month}}
 }
 \keyword{dates,}
 \keyword{season}

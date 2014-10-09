@@ -3,27 +3,22 @@
 \alias{gage.place.nhdplus}
 \title{Assigns each gage to a NHDplus catchment/stream reach}
 \usage{
-gage.place.nhdplus(gages.spatial, catchments = NULL,
-  catchment.file = "C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment",
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
-  save.catch = T)
+gage.place.nhdplus(gages.spatial)
 }
 \arguments{
-\item{gages.spatial}{\code{SpatialPointsDataFrame} produced by plot.gages() function.  Optionally, can be first filtered using plot.gages.buffer() before assigning NHDplus IDs}
+\item{gages.spatial}{\code{SpatialPointsDataFrame} usually produced by gage.retrieve()}
 
-\item{proj4}{\code{character} coordinate system, in proj4 syntax.  Defaults to GCS NAD83, which is used by NHDplus}
-
-\item{catchment.file}{\code{character} location and name shapefile of NHDplus catchments (that cover regions that the gages are in)}
+\item{cache.dir}{\code{character} local directory where spatial data files can be cached}
 }
 \value{
 \code{SpatialPointsDataFrame}
 }
 \description{
-Uses spatial gage object (SpatialPointsDataFrame) created by plot.gages() and optionally plot.gages.buffer().
+Uses spatial gage object, usually one created by gage.retrieve().
 Loads NHDplus catchment file, determines which catchment each gages falls within, and assigns a FEATUREID
 }
 \seealso{
-plot.gages, plot.gages.buffer
+\code{\link{conteStreamflow::gages.retrieve}}
 }
 \keyword{NHDplus}
 \keyword{gage,}

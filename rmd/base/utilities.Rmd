@@ -82,7 +82,7 @@ capitalize<-function (string)
 # no export
 
 merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by, 
-     	by.y=by, all.x=TRUE, suffixes = c(".x",""), 
+     	by.y=by, all.x=TRUE, suffixes = c(".old",""), 
 		incomparables = NULL, ...) {
 	if (!('data' %in% slotNames(x)))
 		stop('x has no attributes')
@@ -101,8 +101,8 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 			function(x) paste(x, collapse='_'))
 	if (all(!i))
 		warning("none of the records in y can be matched to x")
-	else if (sum(!i) > 0)
-		warning(paste(sum(!i), "records in y cannot be matched to x"))
+# 	else if (sum(!i) > 0)
+# 		warning(paste(sum(!i), "records in y cannot be matched to x"))
 
 	y <- y[i, ,drop=FALSE]
 	if (isTRUE(any(table(y[, by.y]) > 1)))
@@ -135,14 +135,16 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 #' @return ext \code{character} file extension
 # no export
 
-save.log <- function(text, dir, filename, ext="txt") {
+save.log <- function(text, filename, ext="txt") {
      #rough draft... to clean up
      
      #      ext="txt"
 #      filename="file"
 #      boo<-c("file001.txt","file002.txt","file005.txt","file011.txt","otherfile.txt")
 
-     setwd(dir)
+     cache.check()
+     
+     setwd(file.path(cache.dir.global,"logs"))
      x<-list.files()
      if ( length(x)==0 )
           x6<-paste( filename, "001", ".", ext, collapse="", sep="" )

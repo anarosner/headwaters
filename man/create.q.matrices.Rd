@@ -4,7 +4,7 @@
 \title{create the monster list of 3-d matrices for flow}
 \usage{
 create.q.matrices(gages.spatial, periods = c("daily", "monthly", "seasonal",
-  "annual"), template.date = NULL)
+  "annual"), template.date, template.period, cols.flow)
 }
 \description{
 used to store aggregated flow data

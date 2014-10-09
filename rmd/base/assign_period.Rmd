@@ -13,9 +13,9 @@
 #' "season" will return vector of strings of the season name (either "winter", "spring", "summer", or "fall") (does not include year)
 #' "all" will return a data.frame, with date, string of season name, and numeric of year
 #' @return see above
-#' @seealso \code{\link{headwaters::to.water.year}}, \code{\link{headwaters::to.month}}
+#' @seealso \code{\link{conteStreamflow::to.water.year}}, \code{\link{conteStreamflow::to.month}}
 #' @keywords dates, season
-# no export
+#' @export
 
 to.season<-function(d, return.type="date", input.type="date" ) {           #,out.fmt="seasons"
      
@@ -81,9 +81,9 @@ to.season<-function(d, return.type="date", input.type="date" ) {           #,out
 #' @param date.only \code{boolean} if TRUE (default), will only return vector of dates
 #' if FALSE, will return data.frame with column of dates, and numeric column of water years
 #' @return see above
-#' @seealso \code{\link{headwaters::to.season}}, \code{\link{headwaters::to.month}}
+#' @seealso \code{\link{conteStreamflow::to.season}}, \code{\link{conteStreamflow::to.month}}
 #' @keywords dates, water year
-# no export
+#' @export
 
 to.water.year<-function(d,date.only=T) {
      x<-data.frame(date=d,year=year(d),month=month(d))
@@ -101,8 +101,8 @@ to.water.year<-function(d,date.only=T) {
 #' @description Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.  Yeah, this one is probably not necessary, but it's easier to have a function analogous to season and water.year assignment functions
 #' @param d \code{vector of dates}
 #' @return \code{vector of dates}
-#' @seealso \code{\link{headwaters::to.water.year}}, \code{\link{headwaters::to.season}}
-# no export
+#' @seealso \code{\link{conteStreamflow::to.water.year}}, \code{\link{conteStreamflow::to.season}}
+#' @export
 
 to.month<-function(d) {
      return(month.date<-as.Date(paste0(year(d),"/",month(d),"/1")))

@@ -1,11 +1,9 @@
-Package: headwaters
+Package: conteStreamflow
 Title: Headwater Streamflow Data Wrangling and Analysis
 Description: Tools for collecting streamflow data, meteorological data, and
-    basin characteristics for hydrological modeling.
+    basin characteristics for hydrological modeling. (Note, check depends packages.  Not sure if I actually need foreign, MASS, dplyr at this point.  Maybe not xtable.) 
 Version: 0.1
 Depends:
-    reshape2,
-    ggplot2,
     DataCombine,
     dplyr,
     EcoHydRology,

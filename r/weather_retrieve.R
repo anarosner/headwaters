@@ -1,4 +1,8 @@
 ## ------------------------------------------------------------------------
+#' @title agg weather 
+#' @description x 
+#' @export
+
 agg.function.weather<-function(df) {
      j<-names(df)[1] #a kinda sneaky way to determine the period, w/o requiring it to be passed as parameter, so only one paramter is needed
      cutoff<-create.template.periods()[j,"min.records"] #determine number of records for this periods to be considered "complete"
@@ -20,17 +24,35 @@ agg.function.weather<-function(df) {
 
 
 ## ------------------------------------------------------------------------
+#' @title col names for weather metrics
+#' @description col names for our processed/saved weather metrics
+#' @export
+
+create.cols.weather<-function() {
+     cols.weather<-c("precip.total","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+                     "tmin","tmax","tavg",
+                     "pet","pet.lag1","pet.lag2","gdd","gdd.lag1","gdd.lag2",
+                     "frozen","melt.doy","melt.doy.lag1","melt.doy.lag2")
+#      cols.weather<-c("precip.mm","rain","melt","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
+#                      "tmin","tmax","tavg","pet","gdd","frozen","melt.doy")
+     return(cols.weather)
+}
+
+
+
+## ------------------------------------------------------------------------
 #' @title import weather 
 #' @description import weather
 #' @export
 weather.retrieve<-function(gages.spatial, 
-                           periods=c("seasonal","annual"),
-                           create.cols.function = create.cols.weather,
-                           agg.function = agg.function.weather,
-                           weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
-                           log.dir=NULL) {
-     
-     #warn user if hasn't assigned weather grid.  later, change to just call function to assign weather grid if it hasn't been done already
+                              periods=c("seasonal","annual"),
+                              agg.function.weather = (conteStreamflow::agg.function.weather), 
+                              template.date = NULL, template.period = NULL, cols.weather = NULL ) { 
+
+       
+          cache.check()
+
+          #warn user if hasn't assigned weather grid.  later, change to just call function to assign weather grid if it hasn't been done already
      if ( !("weather.filename" %in% names(gages.spatial)) )
           stop("Please first plot gages to weather grids using \"gage.place.weather.grid\" ")
      
@@ -40,39 +62,82 @@ weather.retrieve<-function(gages.spatial,
 
      
      #create templates and columns 
-     template.period<-create.template.periods()
-     template.weather <- create.template.weather()
-     weather.grid.coords <- weather.grid.coords.load()
-     cols.mauer <- create.cols.mauer()
-     cols.weather<-create.cols.weather()
+     if (is.null(template.date))
+          template.date<-create.template.date()
+     if (is.null(template.period))
+          template.period<-create.template.periods()
+     if (is.null(cols.weather))
+          cols.weather<-create.cols.weather()
      #maybe later add a test here.  if user specifies custom cols.weather and agg.function, 
      #     need to make sure the columns match the agg function outputs
+
+     cols.mauer <- create.cols.mauer()     
+     template.date.mauer <- create.template.date.mauer()
+     
+     cache.load.data( "weather.grid.coords", file="weather_grid_coords.rdata", dir="weather_grid" )
+#      weather.grid.coords <- weather.grid.coords.load()
+     
      
      #create matrix for storing flow data
-     w.matrices<-create.w.matrices(selected.weather.files$weather.filename, periods=periods)
-                    #check on this
-                         # Warning messages:
-                         # 1: In is.na(x) : is.na() applied to non-(list or vector) of type 'NULL'
-                         # 2: In is.na(x) : is.na() applied to non-(list or vector) of type 'NULL'
-     
+     w.matrices<-create.w.matrices(selected.weather.files$weather.filename, periods=periods,
+                                   template.date=template.date, template.period=template.period, cols.weather=cols.weather)
 
+     for (j in unique(selected.weather.files$region)) {
+#           print(paste0("Region \"",j,"\""))
+          setwd( file.path(cache.dir.global, "data", "weather_data") )
+          dir.conditional.create( new.dir=j, quiet=T )
+
+          for (k in selected.weather.files$weather.filename[selected.weather.files$region==j]) {
+               cache.load.data( file=k, dir=paste0("weather_data","/",j), cache.only=T, quiet=T )
+          }
+     }
+
+
+#      weather.dir<-file.path(cache.dir, "data","weather_data")
+#      to.load <- c()
+#      for (j in unique(selected.weather.files$region)) {
+#           setwd(weather.dir)
+#           dir.conditional.create( new.dir=j, quiet=T )
+# #           if ( !(j %in% list.dirs()) )
+# #                dir.create( file.path(weather.dir,j) )
+#           setwd(file.path(weather.dir,j))
+#           t <- unique( selected.weather.files$weather.filename[selected.weather.files$region==j] )
+#           to.load <- c(  to.load, 
+#                          paste0(j,"/",t[!(t %in% list.files())])  )
+#      }
+#      ### download catchment files as needed
+#      setwd(weather.dir)
+#      
+#      if ( length(to.load)>0 ) {
+#           cat(paste( "Downloading", length(to.load), "weather data files. (This will be cached locally for future use.)"  ))
+#           for ( i in 1:length(to.load) ) {
+#                cat(paste( "... now downloading file",i,"of",length(to.load)  ))
+#                download.file( paste0(server.url,"/data/weather_data/",to.load[i]),
+#                               paste0(cache.dir, "/data/weather_data/",to.load[i]), 
+#                               method="wget", quiet=T)
+#           }
+#           cat("Download complete")
+#      }
+
+     
      #loop through weather grid cells and pull and aggregate observation records
-     cat(paste( "Begin reading", nrow(selected.weather.files), "met files...\r" ))
+     cat(paste( "Begin reading", nrow(selected.weather.files), "unique weather files used for",nrow(gages.spatial),"gages","\n" ))
      for (i in 1:nrow(selected.weather.files) ) {
      
-          cat( paste( "  --  loading file", i, "of", nrow(selected.weather.files), "  --  \r" ))
-          
-          weather.file<-file.path(weather.dir, 
+          cat( paste( "  --  Loading file", i, "of", nrow(selected.weather.files), "  --  \n" ))
+                    
+          weather.file<-file.path(cache.dir.global,"data","weather_data", 
                          selected.weather.files$region[i],
-                         selected.weather.files$weather.filename[i])
-          if(file.exists( weather.file ) ) { 
+                         selected.weather.files$weather.filename[i])        
+                    
+          if( file.exists(weather.file) ) { 
                #check that file exists.  shouldn't be a problem, 
                #   since polygon cells are generated from file names, but just want to make sure
                
                x<-read.table(file=weather.file,
                              col.names=cols.mauer)
                x[,c( "date", template.period$name )]<- 
-                    template.weather[,c( "date", template.period$name )]
+                    template.date.mauer[,c( "date", template.period$name )]
                                    #date is date format  
                                    #others are characters, so they can be used as col names
                centroid <- weather.grid.coords[i, c("x","y")]
@@ -132,7 +197,7 @@ weather.retrieve<-function(gages.spatial,
                     x.final<-as.matrix(x.agg[,cols.weather])
                     w.matrices[[j]][,selected.weather.files$weather.filename[i],]<-x.final
 
-}#end loop periods
+               }#end loop periods
                
           }#end check that file exists
           else

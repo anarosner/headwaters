@@ -3,7 +3,7 @@
 \alias{create.template.date}
 \title{Create template of dates}
 \usage{
-create.template.date()
+create.template.date(start.year = 1949, end.year = 2010)
 }
 \description{
 Create template of dates to mark each period for both flow and weather data

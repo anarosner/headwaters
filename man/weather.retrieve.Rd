@@ -4,9 +4,8 @@
 \title{import weather}
 \usage{
 weather.retrieve(gages.spatial, periods = c("seasonal", "annual"),
-  create.cols.function = create.cols.weather,
-  agg.function = agg.function.weather,
-  weather.dir = "C:/ALR/Data/ClimateData/Mauer/daily", log.dir = NULL)
+  agg.function.weather = (conteStreamflow::agg.function.weather),
+  template.date = NULL, template.period = NULL, cols.weather = NULL)
 }
 \description{
 import weather

@@ -18,7 +18,7 @@ see above
 Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
 }
 \seealso{
-\code{\link{to.season}}, \code{\link{to.month}}
+\code{\link{conteStreamflow::to.season}}, \code{\link{conteStreamflow::to.month}}
 }
 \keyword{dates,}
 \keyword{water}

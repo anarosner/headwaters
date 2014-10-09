@@ -4,15 +4,15 @@
 #' @description col names for flow stats
 #' @export
 #stats to save from flow
-create.cols.flow<-function() {
-   cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
-   return(cols.flow)   
-} 
 
+create.cols.flow <- function( agg.function.flow=(conteStreamflow::agg.function.flow) ) {
+     return(  names( agg.function.flow(data.frame(val=1,rolling7=1)) )  )
+}
 
-#' @title col names for weather metrics
-#' @description col names for our processed/saved weather metrics
-#' @export
+# create.cols.flow<-function() {
+#    cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
+#    return(cols.flow)   
+# } 
 ```
 
 
@@ -21,14 +21,15 @@ create.cols.flow<-function() {
 #' @description used to store aggregated flow data
 # no export
 
-create.q.matrices<-function(gages.spatial, periods=c("daily",  "monthly",   "seasonal",    "annual"), 
-                          template.date=NULL) { #, cols.flow=NULL
+create.q.matrices<-function( gages.spatial, periods=c("daily",  "monthly",   "seasonal",    "annual"),
+                            template.date, template.period, cols.flow ) { 
+#                           template.date=NULL) { #, cols.flow=NULL
      
-     if (is.null(template.date))
-          template.date<-create.template.date()
+#      if (is.null(template.date))
+#           template.date<-create.template.date()
 #      if (is.null(cols.flow))
-     cols.flow<-create.cols.flow()
-     template.period<-create.template.periods()
+#      cols.flow<-create.cols.flow()
+#      template.period<-create.template.periods()
 
      #create list the length of all periods
      #   but only create matrices for the periods specified

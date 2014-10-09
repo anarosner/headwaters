@@ -15,6 +15,6 @@ to.month(d)
 Given a date, determines which month it falls into, and assigns the date corresponding to the first calendar day of the month.  Yeah, this one is probably not necessary, but it's easier to have a function analogous to season and water.year assignment functions
 }
 \seealso{
-\code{\link{to.water.year}}, \code{\link{to.season}}
+\code{\link{conteStreamflow::to.water.year}}, \code{\link{conteStreamflow::to.season}}
 }
 

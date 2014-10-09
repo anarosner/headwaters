@@ -4,8 +4,8 @@
 \title{import flow}
 \usage{
 flow.retrieve(gages.spatial, periods = c("seasonal", "annual"),
-  create.cols.function = create.cols.flow,
-  agg.function = (headwaters::agg.function.flow), log.dir = NULL)
+  agg.function.flow = (conteStreamflow::agg.function.flow),
+  template.date = NULL, template.period = NULL, cols.flow = NULL)
 }
 \description{
 import flow from nwis web service, and aggregate to various metrics and by various periods

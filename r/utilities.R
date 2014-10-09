@@ -1,10 +1,9 @@
 ## ------------------------------------------------------------------------
 
 #' @title Customization of summary function
-#' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports, n records, min, mean, max, and several quantiles. 
+#' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports n records, min, mean, max, and several quantiles. 
 #' @param  v \code{numeric vector} values to summarize
 #' @param  hist \code{boolean} if TRUE, will plot a histogram, as well as output text to console
-#' @return only prints summary
 #' @keywords summary
 #' @export
 
@@ -26,7 +25,6 @@ summary.na<-function(v, hist=F) {
 ## ------------------------------------------------------------------------
 #' @title Customization of ls function
 #' @description Customization of ls function, that includes size (memory) of all objects or data in current session environment.
-#' @return only print to console
 #' @keywords ls
 #' @export
 
@@ -59,11 +57,10 @@ ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
 
 
 ## ------------------------------------------------------------------------
-#' @title Customization of capitalize function
+#' @title Simple capitalization function
 #' @description Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
 #' @param  string \code{character} string to capitalize
 #' @return character
-#' @keywords string, capitalize
 #' @export
 
 #borrowed from Hmisc package
@@ -77,8 +74,12 @@ capitalize<-function (string)
 
 
 ## ------------------------------------------------------------------------
+#' @title internal, temporary replication of merge function to explicitly indicate merging of spatial object with a data.frame
+#' @description perhaps remove?
+# no export
+
 merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by, 
-     	by.y=by, all.x=TRUE, suffixes = c(".x",".y"), 
+     	by.y=by, all.x=TRUE, suffixes = c(".old",""), 
 		incomparables = NULL, ...) {
 	if (!('data' %in% slotNames(x)))
 		stop('x has no attributes')
@@ -97,8 +98,8 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 			function(x) paste(x, collapse='_'))
 	if (all(!i))
 		warning("none of the records in y can be matched to x")
-	else if (sum(!i) > 0)
-		warning(paste(sum(!i), "records in y cannot be matched to x"))
+# 	else if (sum(!i) > 0)
+# 		warning(paste(sum(!i), "records in y cannot be matched to x"))
 
 	y <- y[i, ,drop=FALSE]
 	if (isTRUE(any(table(y[, by.y]) > 1)))
@@ -123,41 +124,79 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 
 
 ## ------------------------------------------------------------------------
-save.log <- function(text, dir, filename, ext="txt") {
+#' @title internal function to save log file
+#' @description saves log file in directory specified.  uses specified prefix.  reads names of existing logs in the directory to specify a number, incrementing it from the largest number of that file type.
+#' @param text  \code{character} text for writeLines 
+#' @param dir  \code{character} name of directory location 
+#' @param filename  \code{character} file name prefix 
+#' @return ext \code{character} file extension
+# no export
+
+save.log <- function(text, filename, ext="txt") {
      #rough draft... to clean up
      
      #      ext="txt"
 #      filename="file"
 #      boo<-c("file001.txt","file002.txt","file005.txt","file011.txt","otherfile.txt")
 
-     setwd(dir)
-     boo<-list.files()
-     if ( length(boo)==0 )
-          boo6<-paste( filename, "001", ".", ext, collapse="", sep="" )
+     cache.check()
+     
+     setwd(file.path(cache.dir.global,"logs"))
+     x<-list.files()
+     if ( length(x)==0 )
+          x6<-paste( filename, "001", ".", ext, collapse="", sep="" )
      else {
                
-          boo2<-sapply(boo, FUN=function(n) substr(n, start=1, stop=(nchar(n)-nchar(ext)-1-3)))
-          boo3<-boo[boo2==filename]
+          x2<-sapply(x, FUN=function(n) substr(n, start=1, stop=(nchar(n)-nchar(ext)-1-3)))
+          x3<-x[x2==filename]
 
-          if ( length(boo3)==0 )
-                    boo6<-paste( filename, "001", ".", ext, collapse="", sep="" )
+          if ( length(x3)==0 )
+                    x6<-paste( filename, "001", ".", ext, collapse="", sep="" )
           else {
                
-               boo4<-sapply(X = boo3, FUN = function(n) {
+               x4<-sapply(X = x3, FUN = function(n) {
                     start <- nchar(n) - (nchar(ext)+1) -3 +1
                     as.numeric( substr( x=n, start=start, stop=(start+3-1)) ) }
                     )
-               boo5<-max(boo4)+1
-               boo6<-paste( filename, zeropad(boo5, LEN = 3), ".", ext, collapse="", sep="" )
+               x5<-max(x4)+1
+               x6<-paste( filename, zeropad(x5, LEN = 3), ".", ext, collapse="", sep="" )
           }
      }
 
      {
      if ( is.data.frame(text) | is.matrix(text) )
-          write.csv( text, file=boo6, row.names=F )
+          write.csv( text, file=x6, row.names=F )
      else                     #if (is.vector)
-          writeLines( text=text, con=boo6 )
+          writeLines( text=text, con=x6 )
      }
 }
+
+
+## ------------------------------------------------------------------------
+#' @title non zero approximation
+#' @export
+
+non.zero<-function(x) {
+     vapply(x,FUN.VALUE=1,FUN=function(x1) {
+          if (is.na(x1) || is.nan(x1) || x1<=0)  
+               return(10^-6)
+          else return(x1)
+     })
+}
+
+
+## ------------------------------------------------------------------------
+#' @title y or n to logical
+# no export
+
+as.logical.y.n <- function( x ) {
+     
+     if (  sum( !(x %in% c("y","n")) )>0  )
+          stop("Please only include values \'y\' or \'n\'")
+     x[x=="y"] <- T
+     x[x=="n"] <- F
+     return(x)
+}
+
 
 
